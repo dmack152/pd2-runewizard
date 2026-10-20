@@ -34,6 +34,8 @@
       </a>
     </section>
 
+    <farming-guide />
+
     <dialog ref="chartDialog" class="rw-CraftingDialog" aria-labelledby="crafting-dialog-title" @click="onDialogClick">
       <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-[#51452e]">
         <h2 id="crafting-dialog-title" class="text-[#e9bf40] font-bold mb-0">Crafting Recipes — Season 14</h2>
@@ -54,6 +56,7 @@ import { defineComponent } from "vue";
 import craftingChart from "@assets/images/crafting-comparison-season14.png";
 import tombSymbols from "@assets/images/tomb-symbols.png";
 import powerLeveling from "@assets/images/power-leveling.png";
+import FarmingGuide from "@/components/FarmingGuide.vue";
 
 type TChartDialog = HTMLDialogElement & {
   showModal(): void;
@@ -62,6 +65,7 @@ type TChartDialog = HTMLDialogElement & {
 
 export default defineComponent({
   name: "CheatSheet",
+  components: { FarmingGuide },
 
   data() {
     return { craftingChart, tombSymbols, powerLeveling };

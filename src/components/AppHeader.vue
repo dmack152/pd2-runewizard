@@ -28,8 +28,9 @@
               type="button"
               class="rw-HelpLink mr-6 whitespace-nowrap"
               :aria-expanded="isChangelogVisible"
+              aria-haspopup="dialog"
               aria-controls="season-14-changelog"
-              @click="isChangelogVisible = !isChangelogVisible; isHelpVisible = false"
+              @click="openChangelog"
             >
               <icon-chevron-down
                 class="ux-icon ux-icon--fw"
@@ -40,7 +41,7 @@
             <a
               href="#"
               class="rw-HelpLink mr-6"
-              @click.prevent="isHelpVisible = !isHelpVisible; isChangelogVisible = false"
+              @click.prevent="isHelpVisible = !isHelpVisible"
             >
               <icon-chevron-down
                 class="ux-icon ux-icon--fw"
@@ -62,11 +63,22 @@
     <!-- separator between header and main content, div simply extends to edges -->
     <div class="rw-Layout-goldBarSeparator mb-2"></div>
 
-    <transition name="fadein">
-      <div v-if="isChangelogVisible" id="season-14-changelog" class="rw-Layout-rowContainer mb-4">
+    <dialog
+      id="season-14-changelog"
+      ref="changelogDialog"
+      class="rw-CraftingDialog rw-ChangelogDialog"
+      aria-labelledby="changelog-title"
+      @close="isChangelogVisible = false"
+      @click="onChangelogBackdropClick"
+    >
+      <div class="flex items-center justify-between gap-3 p-4 border-b border-[#51452e]">
+        <span class="text-[#e9bf40] font-bold">Season 14 Changes</span>
+        <button type="button" class="rwf-btn min-h-[44px]" @click="closeChangelog">Close</button>
+      </div>
+      <div class="rw-ChangelogBody">
         <season-changelog />
       </div>
-    </transition>
+    </dialog>
 
     <transition name="fadein">
       <div v-if="isHelpVisible" class="rw-Layout-rowContainer mb-4">
@@ -82,6 +94,11 @@ import { defineComponent } from "vue";
 import HelpBox from "@/components/HelpBox.vue";
 import SeasonChangelog from "@/components/SeasonChangelog.vue";
 import IconChevronDown from "@/icons/IconChevronDown.vue";
+
+type TChangelogDialog = HTMLDialogElement & {
+  showModal(): void;
+  close(): void;
+};
 
 export default defineComponent({
   name: "AppHeader",
@@ -102,6 +119,22 @@ export default defineComponent({
       envGithubRepoUrl: /**@type {string}*/ (import.meta.env
         .VITE_URL_GITHUB_REPO),
     };
+  },
+
+  methods: {
+    openChangelog() {
+      this.isHelpVisible = false;
+      (this.$refs.changelogDialog as TChangelogDialog).showModal();
+      this.isChangelogVisible = true;
+      const body = (this.$refs.changelogDialog as HTMLElement).querySelector('.rw-ChangelogBody');
+      if (body) body.scrollTop = 0;
+    },
+    closeChangelog() {
+      (this.$refs.changelogDialog as TChangelogDialog).close();
+    },
+    onChangelogBackdropClick(event: MouseEvent) {
+      if (event.target === this.$refs.changelogDialog) this.closeChangelog();
+    },
   },
 });
 </script>
