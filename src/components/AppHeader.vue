@@ -4,9 +4,9 @@
     <div class="rw-Layout-rowContainer h-[106px] flex">
       <div class="pr-[20px] pt-[17px]">
         <img
-          src="@assets/images/logo-rune.png"
-          alt="Rune icon original art (c) BLIZZARD ENTERTAINMENT"
-          class="w-[69px] h-[67px]"
+          src="@assets/images/ber-rune.webp"
+          alt="Ber rune, original art (c) BLIZZARD ENTERTAINMENT"
+          class="w-[69px] h-[67px] object-contain"
         />
       </div>
       <div class="flex-1">
@@ -24,10 +24,23 @@
           </div>
 
           <div class="flex items-center text-[#514f4a]">
+            <button
+              type="button"
+              class="rw-HelpLink mr-6 whitespace-nowrap"
+              :aria-expanded="isChangelogVisible"
+              aria-controls="season-14-changelog"
+              @click="isChangelogVisible = !isChangelogVisible; isHelpVisible = false"
+            >
+              <icon-chevron-down
+                class="ux-icon ux-icon--fw"
+                :class="{ 'transform rotate-180': isChangelogVisible }"
+              />
+              <span class="ml-1">Season 14 Changes</span>
+            </button>
             <a
               href="#"
               class="rw-HelpLink mr-6"
-              @click.prevent="isHelpVisible = !isHelpVisible"
+              @click.prevent="isHelpVisible = !isHelpVisible; isChangelogVisible = false"
             >
               <icon-chevron-down
                 class="ux-icon ux-icon--fw"
@@ -37,9 +50,8 @@
               /><span class="ml-1">{{ "Help" }}</span>
             </a>
 
-            <a :href="`https://discord.gg/DWYBG2qd3u`" class="rw-Header-link">
-              <icon-chat class="ux-icon ux-icon--fw ux-icon--lg mr-1" />
-              <span>{{ "Discord" }}</span>
+            <a href="https://wiki.projectdiablo2.com/" class="rw-Header-link">
+              <span>Wiki</span>
             </a>
           </div>
         </div>
@@ -48,6 +60,12 @@
 
     <!-- separator between header and main content, div simply extends to edges -->
     <div class="rw-Layout-goldBarSeparator mb-2"></div>
+
+    <transition name="fadein">
+      <div v-if="isChangelogVisible" id="season-14-changelog" class="rw-Layout-rowContainer mb-4">
+        <season-changelog />
+      </div>
+    </transition>
 
     <transition name="fadein">
       <div v-if="isHelpVisible" class="rw-Layout-rowContainer mb-4">
@@ -61,7 +79,7 @@
 import { defineComponent } from "vue";
 
 import HelpBox from "@/components/HelpBox.vue";
-import IconChat from "@/icons/IconChat.vue";
+import SeasonChangelog from "@/components/SeasonChangelog.vue";
 import IconChevronDown from "@/icons/IconChevronDown.vue";
 
 export default defineComponent({
@@ -69,13 +87,14 @@ export default defineComponent({
 
   components: {
     HelpBox,
-    IconChat,
+    SeasonChangelog,
     IconChevronDown,
   },
 
   data() {
     return {
       isHelpVisible: false,
+      isChangelogVisible: false,
 
       envGameName: /**@type {string}*/ (import.meta.env.VITE_GAME_NAME),
       envGameVersion: /**@type {string}*/ (import.meta.env.VITE_GAME_VERSION),

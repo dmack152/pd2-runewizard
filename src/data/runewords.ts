@@ -18,7 +18,7 @@ const runewords: TRuneword[] = [
     runes: ["Jah", "Gul", "Eth"],
     level: 65,
     ttypes: ["Melee Weapons", "Throwing Weapons"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Holy Thunder",
@@ -165,7 +165,7 @@ const runewords: TRuneword[] = [
     runes: ["Ber", "Tir", "Um", "Mal", "Lum"],
     level: 63,
     ttypes: ["Axes", "Scepters", "Hammers", "Staves"],
-    version: 'S13 Upd'
+    version: ''
   },
   {
     title: "Bramble",
@@ -186,7 +186,7 @@ const runewords: TRuneword[] = [
     runes: ["Amn", "Ral", "Mal", "Ist", "Ohm"],
     level: 57,
     ttypes: ["Melee Weapons"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Chaos",
@@ -200,7 +200,7 @@ const runewords: TRuneword[] = [
     runes: ["Dol", "Um", "Ber", "Ist"],
     level: 63,
     ttypes: ["Body Armors"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Crescent Moon",
@@ -214,6 +214,7 @@ const runewords: TRuneword[] = [
     runes: ["Lem", "Ist", "Io"],
     level: 51,
     ttypes: ["Helms"],
+    version: 'S14 Upd',
   },
   {
     title: "Doom",
@@ -240,6 +241,7 @@ const runewords: TRuneword[] = [
     runes: ["Amn", "Ber", "Ist", "Sol", "Sur"],
     level: 63,
     ttypes: ["Melee Weapons"],
+    version: 'S14 Upd',
   },
   {
     title: "Exile",
@@ -253,19 +255,21 @@ const runewords: TRuneword[] = [
     runes: ["Fal", "Ohm", "Ort", "Jah"],
     level: 65,
     ttypes: ["Axes", "Hammers", "Swords"],
+    version: 'S14 Upd',
   },
   {
     title: "Gloom",
     runes: ["Fal", "Um", "Pul"],
     level: 47,
     ttypes: ["Body Armors"],
-    version: ''
+    version: 'S14 Upd'
   },
   {
     title: "Hand of Justice",
     runes: ["Sur", "Cham", "Amn", "Lo"],
     level: 67,
     ttypes: ["Weapons"],
+    version: 'S14 Upd',
   },
   {
     title: "Heart of the Oak",
@@ -403,21 +407,21 @@ const runewords: TRuneword[] = [
     runes: ["Ber", "Mal", "Ber", "Ist"],
     level: 63,
     ttypes: ["Polearms", "Spears", "Staves"],
-    version: 'S13 Upd'
+    version: ''
   },
   {
     title: "Insight",
     runes: ["Ral", "Tir", "Tal", "Sol"],
     level: 27,
     ttypes: ["Polearms", "Staves", "Spears"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Last Wish",
     runes: ["Jah", "Mal", "Jah", "Sur", "Jah", "Ber"],
     level: 65,
     ttypes: ["Swords", "Hammers", "Axes", "Staves"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Lawbringer",
@@ -444,7 +448,7 @@ const runewords: TRuneword[] = [
     runes: ["Vex", "Vex", "Lo", "Jah"],
     level: 65,
     ttypes: ["Weapons", "Shields"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Pride",
@@ -510,14 +514,14 @@ const runewords: TRuneword[] = [
     level: 29,
     ttypes: ["Body Armors"],
     tinfos: "",
-    version: 'S13 Upd'
+    version: ''
   },
   {
     title: "Principle",
     runes: ["Ral", "Gul", "Eld"],
     level: 53,
     ttypes: ["Body Armors"],
-    version: 'S13 Upd',
+    version: '',
   },
   {
     title: "Rain",
@@ -628,7 +632,7 @@ const runewords: TRuneword[] = [
     runes: ["Gul", "Cham", "Hel", "Jah", "Dol", "Um"],
     level: 67,
     ttypes: ["Staves", "Hammers", "Missile Weapons", "Polearms", "Spears", "2-H Swords"],
-    version: 'S13 Upd',
+    version: '',
   },
 
   {
@@ -652,7 +656,7 @@ const runewords: TRuneword[] = [
     runes: ["Vex", "Jah", "Lo", "Ral", "Ko", "Mal"],
     level: 65,
     ttypes: ["Hammers"],
-    version: 'S13 Upd'
+    version: ''
   },
 
   {
@@ -676,7 +680,7 @@ const runewords: TRuneword[] = [
     runes: ["Lo", "Ith", "Lo", "Ist"],
     level: 59,
     ttypes: ["Shields"],
-    version: ''
+    version: 'S14 Upd'
   },
 
   {
@@ -703,6 +707,36 @@ const runewords: TRuneword[] = [
     version: ''
   },
 
+  // Season 14 Alliance Open Beta Tentative Patch Notes (including item screenshots).
+  {
+    title: "Madness",
+    runes: ["Sur", "Mal", "Vex", "Shael"],
+    level: 61,
+    ttypes: ["Weapons"],
+    version: 'S14 New',
+  },
+  {
+    title: "Finesse",
+    runes: ["Nef", "Ral", "Dol"],
+    level: 31,
+    ttypes: ["Body Armors"],
+    version: 'S14 New',
+  },
+  {
+    title: "Deception",
+    runes: ["Fal", "Amn", "Hel"],
+    level: 41,
+    ttypes: ["Helms"],
+    version: 'S14 New',
+  },
+  {
+    title: "Jealousy",
+    runes: ["Lo", "Gul", "Thul"],
+    level: 59,
+    ttypes: ["Throwing Weapons"],
+    tinfos: "Amazon Only",
+    version: 'S14 New',
+  },
 ];
 
 export default runewords;

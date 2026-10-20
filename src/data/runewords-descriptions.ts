@@ -380,6 +380,9 @@ const runewordsDesc: TRunewordMeta = {
   `,
 
   Delirium: `
+  +1 To Delirium Form
+  <i>While in Delirium Form: abilities cannot be used,
+  -10% To Enemy Physical Resistance and Ignore Target's Defense.</i>
   6% Chance To Cast Level 14 Mind Blast When Struck
 	11% Chance To Cast Level 18 Confuse On Striking
   14% Chance To Cast Level 13 Terror When Struck
@@ -442,7 +445,7 @@ const runewordsDesc: TRunewordMeta = {
 	Adds 70-71 Damage
 	7% Life Stolen Per Hit
 	20% Chance of Crushing Blow
-  +4 To Revive
+  +12 To Revive
 	+4 Life After Each Kill
 	You May Now Summon 6 Additional Revives
 	10% Reanimate As: Wraith
@@ -471,9 +474,9 @@ const runewordsDesc: TRunewordMeta = {
 	Adds 125-250 Fire Damage
 	Adds 101-275 Lightning Damage
 	Adds 100-225 Cold Damage
-	-10-15% To Enemy Lightning Resistance (varies)
-	-10-15% To Enemy Cold Resistance (varies)
-	-10-15% To Enemy Fire Resistance (varies)
+	-15-20% To Enemy Lightning Resistance (varies)
+	-15-20% To Enemy Cold Resistance (varies)
+	-15-20% To Enemy Fire Resistance (varies)
 	+10 To Strength
   `,
 
@@ -490,19 +493,19 @@ const runewordsDesc: TRunewordMeta = {
 
   Gloom: `
   15% Chance To Cast Level 9 Dim Vision When Struck
-	+20-40% Faster Hit Recovery (varies)
+  +1 To Maximum Curses
+	+20% Faster Hit Recovery
 	+220-280% Enhanced Defense (varies)
 	+10 To Strength
 	All Resistances +45
 	Half Freeze Duration
-	5% Damage Taken Goes To Mana
-	+20% Curse Resistance
+	+30-40% Curse Resistance (varies)
   `,
 
   "Hand of Justice": `
   100% Chance To Cast Level 36 Blaze When You Level-Up
 	100% Chance To Cast Level 48 Meteor When You Die
-	Level 12 Holy Fire Aura When Equipped
+	Level 14 Holy Fire Aura When Equipped
 	+33% Increased Attack Speed
 	+280-330% Enhanced Damage (varies)
 	Ignore Target's Defense
@@ -1298,8 +1301,8 @@ const runewordsDesc: TRunewordMeta = {
   Epiphany: `
   25% Chance To Cast Level 27 Static Field When Struck
   Level 18 Energy Shield When Equipped
-  20% Faster Cast Rate
-  Adds 1-750 Lightning Damage
+  35% Faster Cast Rate
+  Adds 1-1250 Lightning Damage
   +10-15 To All Attributes (varies)
   Increase Maximum Mana 28-35% (varies)
   +8% To Maximum Lightning Resistance
@@ -1341,6 +1344,54 @@ const runewordsDesc: TRunewordMeta = {
   +2 To Life After Each Kill
   `,
 
+  // New runeword stats transcribed from the Season 14 open beta item screenshots.
+  // Deception's Strength includes Fal's +10; Jealousy's +3 Javelin Skills
+  // comes from the pictured base and is not a runeword bonus.
+  Madness: `
+  19% Chance To Cast Level 26 Lower Resist On Striking
+  8% Chance To Cast Level 11 Life Tap On Striking
+  19% Chance To Cast Level 27 Amplify Damage On Striking
+  +45% Increased Attack Speed
+  +200-250% Enhanced Damage (varies)
+  +70-120 To Maximum Damage (varies)
+  7% Mana Stolen Per Hit
+  Prevent Monster Heal
+  All Resistances +20-30 (varies)
+  +4 Life After Each Kill
+  `,
+
+  Finesse: `
+  +20% Increased Attack Speed
+  +25-35% Chance To Pierce (varies)
+  +50-100% Enhanced Defense (varies)
+  +30 Defense vs. Missile
+  Replenish Life +20
+  Fire Resist +30%
+  45% Extra Gold From Monsters
+  `,
+
+  Deception: `
+  +15-20% Critical Strike Multiplier (varies)
+  +5-10% Chance Of Critical Strike (varies)
+  +80-120 Defense (varies)
+  +10-20 To Strength (varies)
+  +50 To Life
+  Attacker Takes Damage Of 20
+  Requirements -15%
+  `,
+
+  Jealousy: `
+  <i>Amazon Throwing Weapons Only</i>
+  +12 To Split Throw
+  +2 To Passive And Magic Skills (Amazon Only)
+  +20% Faster Hit Recovery
+  +260-320% Enhanced Damage (varies)
+  50% Bonus To Attack Rating
+  Adds 3-14 Cold Damage
+  5% Life Stolen Per Hit
+  -12-16% To Enemy Poison Resistance (varies)
+  +20% Chance Of Deadly Strike
+  `,
 };
 
 export default runewordsDesc;

@@ -4,6 +4,8 @@ The Project Diablo 2 Runewizard lets you check easily what runewords you can mak
 
 Click on the runes to mark which ones you have found. The available runewords will be highlighted automatically.
 
+Click **Filter by runes** below the rune list to show only runewords containing any selected rune. Click **Show all runewords** to turn this filter off. Search and item type filters still apply.
+
 The table can be sorted : try clicking on the table headings, you may find it useful!
 
 You can easily search through runeword stats, item types, runes and names of runewords.
@@ -18,7 +20,7 @@ The runes are listed in order of rarity, from top to bottom, and left to right. 
 
 ## Runewords
 
-**Season 13 New and Updated Runewords** have a small <span class="rw-Table-tdTitlePatch">S13 New/Upd</span> icon next to the name.
+**Season 14 New and Updated Runewords** have a small <span class="rw-Table-tdTitlePatch">S14 New/Upd</span> icon next to the name. These changes follow the **Season 14 Alliance Open Beta Tentative Patch Notes** and may change before release.
 
 ## Note about storage
 

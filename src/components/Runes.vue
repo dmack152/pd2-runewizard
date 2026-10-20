@@ -3,7 +3,7 @@
     <div class="flex justify-between items-center mb-2">
       <h2 class="rw-Title-h2 mb-0">Runes</h2>
 
-      <div v-if="isAnyRuneSelected" class="-mt-2px">
+      <div class="-mt-2px" :class="{ invisible: !isAnyRuneSelected }">
         <a class="rw-Runes-clear" href="#" @click.prevent="onClearRunes">
           <icon-cancel class="ux-icon ux-icon--fw rw-Runes-clearIcon text-[#da0000] mr-1" />clear
         </a>
@@ -26,6 +26,21 @@
         </div>
       </div>
     </div>
+    <div v-if="isAnyRuneSelected" class="mt-4 w-[130px]">
+      <button
+        type="button"
+        class="rwf-btn w-full justify-center whitespace-normal"
+        :class="{ 'rwf-btn--active': isRuneFilterActive }"
+        :aria-pressed="isRuneFilterActive"
+        @click="onToggleRuneFilter"
+      >
+        {{ isRuneFilterActive ? 'Show all runewords' : 'Filter by runes' }}
+      </button>
+      <p class="mt-2 text-xs text-center text-[#979797]">Contains any selected rune.</p>
+    </div>
+    <p v-else class="mt-4 w-[130px] text-xs text-center text-[#979797]">
+      Select a rune to filter by
+    </p>
   </div>
 </template>
 
@@ -52,6 +67,10 @@ export default defineComponent({
   },
 
   computed: {
+    isRuneFilterActive(): boolean {
+      return store.state.filterBySelectedRunes;
+    },
+
     isAnyRuneSelected(): boolean {
       return store.getRunes().length > 0;
     },
@@ -70,6 +89,10 @@ export default defineComponent({
   },
 
   methods: {
+    onToggleRuneFilter() {
+      store.state.filterBySelectedRunes = !store.state.filterBySelectedRunes;
+    },
+
     onClearRunes() {
       store.clearRunes();
       store.saveState();

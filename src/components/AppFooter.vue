@@ -4,10 +4,10 @@
 
     <div class="text-center text-lg text-gold leading-1">
       <div>
-        Maintenance
-        <a :href="envGithubRepoUrl" class="rw-Footer-link ml-2">
+        Forked from
+        <a href="https://github.com/kvothed2/pd2-runewizard/" class="rw-Footer-link ml-2">
           <icon-github class="ux-icon ux-icon--fw mr-1 mt-[-0.2em]" />
-          <span class>{{ "kvothed2/pd2-runewizard" }}</span>
+          <span>kvothed2/pd2-runewizard</span>
         </a>
       </div>
       <br>
@@ -34,11 +34,5 @@ export default defineComponent({
     IconGithub,
   },
 
-  data() {
-    return {
-      envGithubRepoUrl: import.meta.env.VITE_URL_GITHUB_REPO as string,
-      envMainSiteUrl: import.meta.env.VITE_URL_MAIN_SITE as string,
-    };
-  },
 });
 </script>

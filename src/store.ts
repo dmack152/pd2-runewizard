@@ -11,6 +11,7 @@ import { runesIds } from "@/data/runes";
 type TStoreState = {
   haveRunes: { [key in TRuneId]?: boolean };
   pinned: Set<TRunewordId>;
+  filterBySelectedRunes: boolean;
 };
 
 // user data as stored in browser's localStorage
@@ -25,6 +26,7 @@ const store = {
   state: reactive({
     haveRunes: [],
     pinned: new Set(),
+    filterBySelectedRunes: false,
   }) as TStoreState,
 
   storage: null as Storage | null,
@@ -59,6 +61,9 @@ const store = {
   setRunes(runes: TRuneId[], state = true) {
     for (const runeId of runes) {
       this.state.haveRunes[runeId] = state;
+    }
+    if (this.getRunes().length === 0) {
+      this.state.filterBySelectedRunes = false;
     }
   },
 

@@ -22,6 +22,7 @@ import { defineComponent } from "vue";
 import runewordsData from "@/data/runewords";
 import runewordsDesc from "@/data/runewords-descriptions";
 import MAX_SOCKETS from "@/data/socket-limits";
+import store from "@/store";
 import RunewordsTable from "@/components/RunewordsTable.vue";
 import RunewordFilters from "@/components/RunewordFilters.vue";
 
@@ -53,11 +54,28 @@ export default defineComponent({
   },
 
   computed: {
+    selectedRunes(): TRuneId[] {
+      return store.getRunes();
+    },
+
+    isRuneFilterActive(): boolean {
+      return store.state.filterBySelectedRunes;
+    },
+
     // Deduplicated list of every ttype that appears in the dataset.
     // Passed to RunewordFilters so it only renders subtypes that have runewords.
     availableTtypes(): string[] {
       const all = runewordsData.flatMap((rw) => rw.ttypes);
       return [...new Set(all)];
+    },
+  },
+
+  watch: {
+    selectedRunes() {
+      this.updateFilter();
+    },
+    isRuneFilterActive() {
+      this.updateFilter();
     },
   },
 
@@ -151,7 +169,10 @@ export default defineComponent({
         // --- slot + socket filter ---
         const slotMatch = this.runewordMatchesSlotFilter(item);
 
-        return textMatch && slotMatch;
+        const runeMatch = !this.isRuneFilterActive ||
+          this.selectedRunes.some((rune) => item.runes.includes(rune));
+
+        return textMatch && slotMatch && runeMatch;
       };
 
       this.runewordsList.forEach((item) => {

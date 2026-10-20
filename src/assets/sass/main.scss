@@ -123,6 +123,52 @@ object {
   }
 }
 
+.rw-Workspace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 24px;
+
+  > .rw-Main {
+    flex: 0 1 1250px;
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.rw-CheatSheet {
+  flex: 1 1 300px;
+  max-width: 640px;
+  min-width: 0;
+  margin: 16px 24px 48px 0;
+  position: sticky;
+  top: 24px;
+}
+
+.rw-CraftingDialog {
+  width: 1500px;
+  max-width: calc(100vw - 48px);
+  max-height: 94vh;
+  padding: 0;
+  border: 1px solid #937c6e;
+  border-radius: 4px;
+  background: #000208;
+  color: #afafaf;
+
+  &::backdrop {
+    background: #000c;
+  }
+}
+
+@media (max-width: 1599px) {
+  .rw-CheatSheet {
+    flex-basis: 100%;
+    max-width: none;
+    margin: 0 16px 48px 32px;
+    position: static;
+  }
+}
+
 .rw-Header {
   &-link {
     @apply text-gold-light;
