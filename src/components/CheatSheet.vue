@@ -24,6 +24,15 @@
       </a>
     </section>
 
+    <section class="mt-6 border border-[#51452e] rounded bg-[#17130e] overflow-hidden">
+      <div class="p-4">
+        <h3 class="text-[#e9bf40] font-bold mb-0">Power Leveling</h3>
+      </div>
+      <a :href="powerLeveling" target="_blank" rel="noopener" aria-label="Open power leveling chart full size" class="block p-4 pt-0 cursor-zoom-in">
+        <img :src="powerLeveling" alt="Power leveling reference chart with level ranges and suggested leveling areas" class="block w-full max-w-[416px] h-auto mx-auto [image-rendering:pixelated]" />
+      </a>
+    </section>
+
     <dialog ref="chartDialog" class="rw-CraftingDialog" aria-labelledby="crafting-dialog-title" @click="onDialogClick">
       <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-[#51452e]">
         <h2 id="crafting-dialog-title" class="text-[#e9bf40] font-bold mb-0">Crafting Recipes — Season 14</h2>
@@ -43,6 +52,7 @@
 import { defineComponent } from "vue";
 import craftingChart from "@assets/images/crafting-comparison-season14.png";
 import tombSymbols from "@assets/images/tomb-symbols.png";
+import powerLeveling from "@assets/images/power-leveling.png";
 
 type TChartDialog = HTMLDialogElement & {
   showModal(): void;
@@ -53,7 +63,7 @@ export default defineComponent({
   name: "CheatSheet",
 
   data() {
-    return { craftingChart, tombSymbols };
+    return { craftingChart, tombSymbols, powerLeveling };
   },
 
   methods: {
