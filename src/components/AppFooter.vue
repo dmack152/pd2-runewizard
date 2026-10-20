@@ -18,6 +18,7 @@
           <span class>{{ "fabd/diablo2-runewizard" }}</span>
         </a>
       </div>
+      <div class="mt-6">Maintained by <span class="text-gold-light">dmoney</span></div>
     </div>
   </footer>
 </template>

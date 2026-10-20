@@ -3,10 +3,10 @@
 
   <div class="rw-Workspace">
     <main class="rw-Layout-rowContainer rw-Main py-4 flex mb-24">
-      <div class="mr-16">
+      <div class="rw-RunePicker mr-16">
         <runes />
       </div>
-      <div class="overflow-auto flex-1">
+      <div id="runewords" class="rw-Results overflow-auto flex-1">
         <runewords />
       </div>
     </main>

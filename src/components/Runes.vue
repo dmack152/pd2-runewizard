@@ -13,9 +13,12 @@
     <div class="rw-Runes flex justify-between w-[130px] select-none">
       <div v-for="(runesTier, i) in runesByTier" :key="i" class="w-1/3">
         <!-- a single rune -->
-        <div
+        <button
           v-for="rune in runesTier"
           :key="rune.name"
+          type="button"
+          :aria-label="`${rune.name} rune`"
+          :aria-pressed="!!haveRunes[rune.name]"
           class="rw-Rune mx-auto"
           :class="{
             'is-selected': haveRunes[rune.name],
@@ -23,10 +26,10 @@
           @click="onToggleRune(rune.name)"
         >
           <span class="mx-auto my-auto">{{ rune.name }}</span>
-        </div>
+        </button>
       </div>
     </div>
-    <div v-if="isAnyRuneSelected" class="mt-4 w-[130px]">
+    <div v-if="isAnyRuneSelected" class="rw-RuneFilter mt-4 w-[130px]">
       <button
         type="button"
         class="rwf-btn w-full justify-center whitespace-normal"
@@ -38,7 +41,7 @@
       </button>
       <p class="mt-2 text-xs text-center text-[#979797]">Contains any selected rune.</p>
     </div>
-    <p v-else class="mt-4 w-[130px] text-xs text-center text-[#979797]">
+    <p v-else class="rw-RuneFilter mt-4 w-[130px] text-xs text-center text-[#979797]">
       Select a rune to filter by
     </p>
   </div>

@@ -1,6 +1,18 @@
 <template>
   <runeword-popup ref="popup" />
 
+  <div class="rw-MobileSort">
+    <label for="runeword-sort">Sort by</label>
+    <select id="runeword-sort" v-model="sortKey" @change="sortAsc = true">
+      <option value="level">Level</option>
+      <option value="title">Name</option>
+      <option value="ttypes">Item type</option>
+    </select>
+    <button type="button" class="rwf-btn" :aria-label="sortAsc ? 'Sort descending' : 'Sort ascending'" @click="sortAsc = !sortAsc">
+      {{ sortAsc ? 'Ascending' : 'Descending' }}
+    </button>
+  </div>
+
   <table class="rw-Table w-full">
     <thead>
       <tr>
@@ -27,7 +39,7 @@
     <tbody>
       <template v-for="(item, i) in itemsBySort" :key="i">
         <template v-if="pinnedRunewords.size && i === 0">
-          <tr class="rw-Table-tr">
+          <tr class="rw-Table-tr rw-Table-sectionRow">
             <td class="rw-Table-td" colspan="9">
               <div class="text-center mt-6 py-2 relative">
                 <span class="text-md text-gold tracking-[.2em]">PINNED RUNEWORDS</span>
@@ -40,7 +52,7 @@
         </template>
 
         <template v-if="pinnedRunewords.size && i === pinnedRunewords.size">
-          <tr class="rw-Table-tr">
+          <tr class="rw-Table-tr rw-Table-sectionRow">
             <td class="rw-Table-td" colspan="9">
               <div class="text-center text-md text-gold tracking-[.2em] mt-6 py-2">ALL RUNEWORDS</div>
             </td>
@@ -55,25 +67,31 @@
           }"
         >
           <td class="rw-Table-td rw-Table-tdTitle p-0 text-left relative min-w-[10em]">
-            <span
+            <button
+              type="button"
               class="rw-Table-tdTitleSpan cursor-pointer"
               @mouseenter="onEnterRuneword($event, item)"
               @mouseleave="onLeaveRuneword()"
               @click="onEnterRuneword($event, item)"
-            >{{ item.title }}</span>
+            >{{ item.title }}</button>
             <span v-if="item.ladder" class="rw-Md-ladder" title="Ladder Only">L</span>
             <span v-if="item.version" class="rw-Table-tdTitlePatch" title="Patch version">{{ item.version }}</span>
 
-            <div
+            <button
               v-if="pinnedRunewords.has(item.title)"
+              type="button"
+              :aria-label="`Unpin ${item.title}`"
               class="rw-Table-pin is-pinned"
               @click="onTogglePin(item.title)"
             >
               <icon-check-on class="rw-Table-pinIcon" />
-            </div>
-            <div v-else class="rw-Table-pin" @click="onTogglePin(item.title)">
+            </button>
+            <button v-else type="button" :aria-label="`Pin ${item.title}`" class="rw-Table-pin" @click="onTogglePin(item.title)">
               <icon-check-off class="rw-Table-pinIcon" />
-            </div>
+            </button>
+          </td>
+          <td class="rw-MobileRecipe">
+            <span v-for="(rune, index) in item.runes" :key="index" :class="{ 'is-active': haveRunes[rune] }">{{ rune }}</span>
           </td>
           <td class="rw-Table-td is-rune" :class="cssActiveRune(item.runes[0])">
             {{
@@ -106,7 +124,7 @@
             }}
           </td>
           <td class="rw-Table-td rw-Table-tdType min-w-[10em]" v-html="getTypeCellHtml(item)"></td>
-          <td class="rw-Table-td">{{ item.level }}</td>
+          <td class="rw-Table-td rw-Table-level"><span class="rw-MobileOnly">Level&nbsp;</span>{{ item.level }}</td>
         </tr>
       </template>
     </tbody>
@@ -272,6 +290,7 @@ export default defineComponent({
     },
 
     onEnterRuneword(ev: Event, runeword: TRuneword) {
+      if (ev.type === "mouseenter" && window.matchMedia("(max-width: 767px)").matches) return;
       // paranoia
       if (!ev.target) return;
 
@@ -279,6 +298,7 @@ export default defineComponent({
     },
 
     onLeaveRuneword() {
+      if (window.matchMedia("(max-width: 767px)").matches) return;
       this.refPopup.setVisible(false);
     },
 

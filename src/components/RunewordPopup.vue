@@ -1,4 +1,5 @@
 <template>
+  <div v-if="isVisible" class="rw-RunewordPopup-backdrop" @click="setVisible(false)"></div>
   <div
     ref="root"
     class="rw-RunewordPopup absolute"
@@ -8,9 +9,11 @@
       top: unitPx(position.y),
     }"
     @click="setVisible(false)"
+    @keydown.esc="setVisible(false)"
   >
+    <button type="button" class="rw-RunewordPopup-close rwf-btn" @click.stop="setVisible(false)">Close</button>
     <h3 class="rw-RunewordPopup-title">{{ runeword.title }}</h3>
-    <div class="rw-RunewordPopup-type" v-html="runeword.ttypes"></div>
+    <div class="rw-RunewordPopup-type">{{ runeword.ttypes.join(' / ') }}</div>
     <div class="rw-RunewordPopup-body" v-html="formatBody"></div>
   </div>
 </template>

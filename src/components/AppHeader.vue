@@ -1,29 +1,29 @@
 <template>
   <!-- optional header to decorate the stand alone version -->
-  <header>
-    <div class="rw-Layout-rowContainer h-[106px] flex">
-      <div class="pr-[20px] pt-[17px]">
+  <header class="rw-SiteHeader">
+    <div class="rw-Header-content rw-Layout-rowContainer h-[106px] flex">
+      <div class="rw-Header-icon pr-[20px] pt-[17px]">
         <img
           src="@assets/images/ber-rune.webp"
           alt="Ber rune, original art (c) BLIZZARD ENTERTAINMENT"
           class="w-[69px] h-[67px] object-contain"
         />
       </div>
-      <div class="flex-1">
-        <h1 class="text-black text-[0px] mt-[19px] mb-[5px] w-[301px] h-[32px]">
+      <div class="rw-Header-brand flex-1">
+        <h1 class="rw-Header-logo text-black text-[0px] mt-[19px] mb-[5px] w-[301px] h-[32px]">
           <img
             src="@assets/images/logo-text-runewizard.png"
             alt="PD2 Runewizard"
             class="block w-full h-full"
           />
         </h1>
-        <div class="flex justify-between items-center">
-          <div class="text-lg text-[#e9bf40]">
+        <div class="rw-Header-meta flex justify-between items-center">
+          <div class="rw-Header-version text-lg text-[#e9bf40]">
             for <span class="text-[#e9bf40] font-bold">{{ envGameName }}</span>
             <span class="ml-2 text-[#90b7ff]">{{ envGameVersion }}</span>
           </div>
 
-          <div class="flex items-center text-[#514f4a]">
+          <div class="rw-Header-nav flex items-center text-[#514f4a]">
             <button
               type="button"
               class="rw-HelpLink mr-6 whitespace-nowrap"
@@ -53,6 +53,7 @@
             <a href="https://wiki.projectdiablo2.com/" class="rw-Header-link">
               <span>Wiki</span>
             </a>
+            <a href="#cheat-sheet" class="rw-HelpLink rw-CheatSheetJump">Cheat Sheet</a>
           </div>
         </div>
       </div>

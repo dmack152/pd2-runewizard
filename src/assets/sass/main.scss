@@ -644,6 +644,305 @@ object {
 
 
 // --------------------------------------------------------------------
+.rw-MobileOnly,
+.rw-MobileSort,
+.rw-MobileRecipe,
+.rw-CheatSheetJump,
+.rw-RunewordPopup-close,
+.rw-RunewordPopup-backdrop {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .rw-Layout .rw-Layout-rowContainer,
+  .rw-Layout-rowContainer.rw-Layout-rowContainer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .rw-SiteHeader .rw-Header-content {
+    height: auto;
+    min-height: 106px;
+    padding-top: 16px;
+    padding-bottom: 8px;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .rw-SiteHeader .rw-Header-icon {
+    padding: 0;
+    flex: 0 0 40px;
+  }
+  .rw-SiteHeader .rw-Header-icon img {
+    width: 40px;
+    height: 40px;
+  }
+  .rw-SiteHeader .rw-Header-brand {
+    min-width: 0;
+  }
+  .rw-SiteHeader .rw-Header-logo {
+    width: 100%;
+    max-width: 301px;
+    height: auto;
+    margin: 0 0 8px;
+  }
+  .rw-SiteHeader .rw-Header-logo img {
+    height: auto;
+  }
+  .rw-SiteHeader .rw-Header-meta {
+    display: block;
+  }
+  .rw-SiteHeader .rw-Header-version {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .rw-SiteHeader .rw-Header-version > span:last-child {
+    display: block;
+    margin-left: 0;
+  }
+  .rw-SiteHeader .rw-Header-nav {
+    flex-wrap: wrap;
+    gap: 0 16px;
+    margin-top: 4px;
+    font-size: 13px;
+  }
+  .rw-SiteHeader .rw-Header-nav > * {
+    margin-right: 0;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .rw-Workspace > .rw-Main {
+    display: block;
+    flex-basis: 100%;
+    margin-bottom: 0;
+  }
+  .rw-RunePicker.rw-RunePicker {
+    margin-right: 0;
+    margin-bottom: 24px;
+  }
+  .rw-RunePicker .rw-Runes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
+    width: 100%;
+    gap: 2px;
+  }
+  .rw-RunePicker .rw-Runes > div {
+    display: contents;
+  }
+  .rw-RunePicker .rw-Rune {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    background: none;
+    line-height: 44px;
+    touch-action: manipulation;
+  }
+  .rw-RunePicker .rw-Rune::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    background: url("@assets/images/rune-bg2.gif") no-repeat 50% -34px;
+  }
+  .rw-RunePicker .rw-Rune.is-selected::before {
+    background-position: 50% 0;
+  }
+  .rw-RunePicker .rw-Rune span {
+    position: relative;
+  }
+  .rw-RunePicker .rw-RuneFilter {
+    width: 100%;
+    margin-top: 12px;
+  }
+  .rw-RunePicker .rwf-btn {
+    min-height: 44px;
+  }
+  .rw-Results.rw-Results {
+    overflow: visible;
+    min-width: 0;
+  }
+  .rw-Search.rw-Search {
+    display: block;
+    margin-bottom: 16px;
+  }
+  .rw-Search label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  .rw-Search .rw-Search-input {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+  .rwf-wrap.rwf-wrap {
+    margin-bottom: 16px;
+  }
+  .rwf-wrap .rwf-btn,
+  .rwf-wrap .rwf-clear {
+    min-height: 44px;
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  .rw-MobileSort {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .rw-MobileSort select {
+    flex: 1;
+    min-height: 44px;
+    min-width: 80px;
+    background: #17130e;
+    border: 1px solid #51452e;
+    border-radius: 4px;
+    padding: 8px;
+    color: #bab197;
+  }
+  .rw-MobileSort button {
+    min-height: 44px;
+    font-size: 13px;
+  }
+
+  .rw-Table.rw-Table,
+  .rw-Table tbody {
+    display: block;
+    width: 100%;
+  }
+  .rw-Table thead {
+    display: none;
+  }
+  .rw-Table .rw-Table-tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    border: 1px solid #313846;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: #090b11;
+  }
+  .rw-Table .rw-Table-td {
+    display: block;
+    min-width: 0;
+    border: 0;
+    padding: 4px 0;
+    text-align: left;
+    line-height: 1.5;
+  }
+  .rw-Table .rw-Table-tdTitle {
+    grid-column: 1 / -1;
+    padding-right: 36px;
+  }
+  .rw-Table .rw-Table-tdTitleSpan {
+    min-height: 44px;
+    padding: 8px 0;
+    text-align: left;
+    color: #bab197;
+  }
+  .rw-Table .rw-Table-pin {
+    width: 44px;
+    height: 44px;
+    margin-top: -22px;
+    right: -8px;
+  }
+  .rw-Table .rw-Table-td.is-rune {
+    display: none;
+  }
+  .rw-Table .rw-MobileRecipe {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 2px 0 8px;
+    color: #90b7ff;
+  }
+  .rw-MobileRecipe > span {
+    border: 1px solid #313846;
+    border-radius: 3px;
+    padding: 4px 7px;
+  }
+  .rw-MobileRecipe > .is-active {
+    color: #fff385;
+    border-color: #8a8062;
+  }
+  .rw-Table .rw-Table-tdType {
+    overflow-wrap: anywhere;
+    color: #979797;
+  }
+  .rw-Table .rw-Table-level {
+    padding-left: 12px;
+    color: #b4ac92;
+    white-space: nowrap;
+  }
+  .rw-MobileOnly {
+    display: inline-block;
+  }
+  .rw-Table .rw-Table-sectionRow,
+  .rw-Table .rw-Table-sectionRow td {
+    display: block;
+    background: none;
+    border: 0;
+  }
+  .rw-Table-sectionRow td > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: space-between;
+  }
+  .rw-Table-sectionRow .rw-Runes-clear {
+    position: static;
+  }
+
+  .rw-RunewordPopup-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: #000b;
+  }
+  .rw-RunewordPopup.rw-RunewordPopup {
+    position: fixed;
+    left: 12px !important;
+    top: 50% !important;
+    transform: translateY(-50%);
+    width: calc(100vw - 24px);
+    min-width: 0;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    padding: 16px;
+    background: #090b11;
+    font-size: 14px;
+  }
+  .rw-RunewordPopup .rw-RunewordPopup-close {
+    display: flex;
+    margin: 0 0 16px auto;
+    min-height: 44px;
+  }
+  .rw-CheatSheet.rw-CheatSheet {
+    margin: 0 16px 32px;
+    flex-basis: calc(100% - 32px);
+    scroll-margin-top: 16px;
+  }
+  .rw-CraftingDialog.rw-CraftingDialog {
+    max-width: calc(100vw - 16px);
+  }
+  .rw-Footer.rw-Footer {
+    min-height: 120px;
+    overflow-wrap: anywhere;
+  }
+  .rw-Footer > div:last-child {
+    padding: 0 16px;
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  #runewords {
+    scroll-margin-top: 16px;
+  }
+}
+
 // (last) tailwind utilities
 // --------------------------------------------------------------------
 @import "tailwindcss/utilities";

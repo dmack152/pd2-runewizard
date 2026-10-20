@@ -1,6 +1,7 @@
 <template>
-  <aside class="rw-CheatSheet" aria-labelledby="cheat-sheet-title">
+  <aside id="cheat-sheet" class="rw-CheatSheet" aria-labelledby="cheat-sheet-title">
     <h2 id="cheat-sheet-title" class="rw-Title-h2 mb-4">Cheat Sheet</h2>
+    <a href="#runewords" class="rw-MobileOnly rw-Header-link mb-4">Back to runewords ↑</a>
     <section class="border border-[#51452e] rounded bg-[#17130e] overflow-hidden">
       <div class="p-4">
         <h3 class="text-[#e9bf40] font-bold mb-1">Crafting Recipes</h3>
