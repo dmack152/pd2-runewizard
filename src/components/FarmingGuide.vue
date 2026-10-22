@@ -26,11 +26,11 @@
       <div class="rw-ChangelogBody p-4">
         <p class="text-sm text-[#b4ac92] mb-3">PD2 campaign areas before maps. Suggestions assume you cannot reliably break immunities.</p>
         <div class="rw-FarmingTypes" role="group" aria-label="Guide damage type">
-          <button v-for="guide in guides" :key="guide.type" type="button" :aria-pressed="selectedType === guide.type" :style="{ color: guide.color }" @click="selectedType = guide.type">{{ guide.type }}</button>
+          <button v-for="guide in guides" :key="guide.type" type="button" :aria-pressed="dialogType === guide.type" :style="{ color: guide.color }" @click="dialogType = guide.type">{{ guide.type }}</button>
         </div>
-        <p class="text-[#a0c6ff] my-4" aria-live="polite">{{ selectedGuide.summary }}</p>
+        <p class="text-[#a0c6ff] my-4" aria-live="polite">{{ dialogGuide.summary }}</p>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <article v-for="area in selectedGuide.areas" :key="area.name" class="border border-[#444] rounded p-4">
+          <article v-for="area in dialogGuide.areas" :key="area.name" class="border border-[#444] rounded p-4">
             <h3 class="text-[#e9bf40] font-bold mb-1">{{ area.name }}</h3>
             <p class="text-xs text-[#b4ac92] mb-3">Act {{ area.act }} · Hell area level {{ area.level }}</p>
             <p class="text-sm text-[#a0c6ff] mb-3">{{ area.benefit }}</p>
@@ -47,7 +47,7 @@
             <p class="mt-2">Zone levels and immunities checked on October 20, 2026. Community recommendations span older seasons; clear speed depends on your build and gear.</p>
             <ul class="list-disc pl-5 leading-relaxed">
               <li><a href="https://wiki.projectdiablo2.com/wiki/Zones" target="_blank" rel="noopener" class="rw-Header-link underline">PD2 wiki: zone levels, immunities, and Corrupted Zones</a></li>
-              <li v-for="source in selectedGuide.sources" :key="source.url"><a :href="source.url" target="_blank" rel="noopener" class="rw-Header-link underline">{{ source.title }}</a></li>
+              <li v-for="source in dialogGuide.sources" :key="source.url"><a :href="source.url" target="_blank" rel="noopener" class="rw-Header-link underline">{{ source.title }}</a></li>
             </ul>
           </details>
         </div>
@@ -65,15 +65,20 @@ type TGuideDialog = HTMLDialogElement & { showModal(): void; close(): void };
 export default defineComponent({
   name: "FarmingGuide",
   data() {
-    return { guides: damageGuides, selectedType: "Fire" as DamageType };
+    return { guides: damageGuides, selectedType: "Fire" as DamageType, dialogType: "Fire" as DamageType };
   },
   computed: {
     selectedGuide(): typeof damageGuides[number] {
       return damageGuides.find((guide) => guide.type === this.selectedType) || damageGuides[0];
     },
+    dialogGuide(): typeof damageGuides[number] {
+      return damageGuides.find((guide) => guide.type === this.dialogType) || damageGuides[0];
+    },
   },
   methods: {
-    openGuide() {
+    async openGuide() {
+      this.dialogType = this.selectedType;
+      await this.$nextTick();
       const dialog = this.$refs.guideDialog as TGuideDialog;
       dialog.showModal();
       const body = dialog.querySelector('.rw-ChangelogBody');

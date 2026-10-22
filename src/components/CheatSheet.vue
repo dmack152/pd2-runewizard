@@ -7,8 +7,9 @@
         <h3 class="text-[#e9bf40] font-bold mb-1">Crafting Recipes</h3>
         <p class="text-sm text-[#b4ac92] mb-0">Season 14 Alliance</p>
       </div>
-      <button type="button" class="block w-full cursor-zoom-in" aria-label="Enlarge Season 14 crafting matrix" @click="openChart">
+      <button type="button" class="relative block w-full cursor-zoom-in" aria-label="Enlarge Season 14 crafting matrix" @click="openChart">
         <img :src="craftingChart" alt="Season 14 crafting comparison matrix for Blood, Caster, Hitpower, Safety, Vampiric, Bountiful, and Brilliant recipes" class="block w-full h-auto" />
+        <span aria-hidden="true" class="absolute bottom-3 right-3 rounded border border-[#8a8062] bg-[#000208] px-3 py-1 text-sm text-[#e9bf40]">Click to enlarge</span>
       </button>
       <div class="p-4">
         <p class="text-sm text-[#b4ac92] mb-3">Compare rune and gem recipes, crafting bonuses, and infusions.</p>

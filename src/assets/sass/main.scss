@@ -145,6 +145,7 @@ object {
   top: 24px;
   max-height: calc(100vh - 48px);
   overflow-y: auto;
+  padding-right: 12px;
   scrollbar-width: thin;
   scrollbar-color: #8a8062 #17130e;
 
@@ -234,6 +235,7 @@ html:has(.rw-ChangelogDialog[open]) {
     position: static;
     max-height: none;
     overflow-y: visible;
+    padding-right: 0;
   }
 }
 

@@ -51,6 +51,9 @@
               /><span class="ml-1">{{ "Help" }}</span>
             </a>
 
+            <a href="https://www.projectdiablo2.com/" class="rw-Header-link mr-6">
+              <span>Trade</span>
+            </a>
             <a href="https://wiki.projectdiablo2.com/" class="rw-Header-link">
               <span>Wiki</span>
             </a>

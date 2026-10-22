@@ -3,6 +3,7 @@
     <div class="rw-Layout-goldBarSeparator opacity-50 mb-6"></div>
 
     <div class="text-center text-lg text-gold leading-1">
+      <div class="mb-6">Maintained by <span class="text-gold-light">dmoney</span> for the <span class="text-gold-light">TBD guild</span></div>
       <div>
         Forked from
         <a href="https://github.com/kvothed2/pd2-runewizard/" class="rw-Footer-link ml-2">
@@ -18,7 +19,6 @@
           <span class>{{ "fabd/diablo2-runewizard" }}</span>
         </a>
       </div>
-      <div class="mt-6">Maintained by <span class="text-gold-light">dmoney</span></div>
     </div>
   </footer>
 </template>
