@@ -2,7 +2,7 @@
   <app-header v-if="useLayoutHeader" />
 
   <div v-if="zoneState.notice" class="rw-ZoneNotice" role="alert">
-    <a href="#corrupted-zones" class="rw-Header-link"><strong>{{ zoneState.notice.name }}</strong> {{ zoneState.notice.advance ? `becomes corrupted in ${Math.max(1, Math.ceil((zoneState.notice.startsAt - zoneState.now) / 60000))} minutes.` : 'is now corrupted.' }} View schedule →</a>
+    <a href="#corrupted-zones" class="rw-Header-link"><strong>{{ zoneState.notice.name }}</strong> {{ zoneNoticeMessage }} View schedule →</a>
     <button type="button" class="rwf-btn min-h-[44px]" aria-label="Dismiss corrupted zone alert" @click="dismissZoneNotice">Dismiss</button>
   </div>
 
@@ -48,6 +48,12 @@ export default defineComponent({
   data() { return { zoneState, isZonePage: window.location.hash === "#corrupted-zones" }; },
 
   computed: {
+    zoneNoticeMessage(): string {
+      const notice = this.zoneState.notice;
+      if (!notice || !notice.advance) return "is now corrupted.";
+      const minutes = Math.max(1, Math.ceil((notice.startsAt - this.zoneState.now) / 60000));
+      return `becomes corrupted in ${minutes} minute${minutes === 1 ? "" : "s"}.`;
+    },
     useLayoutHeader(): boolean {
       return import.meta.env.VITE_LAYOUT_HEADER === "true";
     },

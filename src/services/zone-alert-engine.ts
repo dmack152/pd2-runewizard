@@ -1,27 +1,36 @@
 import { zoneAt, ZONE_INTERVAL } from "../data/corrupted-zones";
 
-export type AlertPreferences = { enabled: boolean; advanceEnabled: boolean; soundEnabled: boolean; selected: readonly string[] };
-export type ZoneAlert = { id: string; name: string; startsAt: number; advance: boolean; dueAt: number; expiresAt: number };
+export type AlertPreferences = { enabled: boolean; advanceEnabled: boolean; advanceMinutes?: number; soundEnabled: boolean; selected: readonly string[] };
+export type ZoneAlert = { id: string; name: string; startsAt: number; advance: boolean; advanceMinutes: number; dueAt: number; expiresAt: number };
 export type AlertSound = "off" | "chime" | "browser" | "blocked";
 export type SoundPlan = { mode: "off" | "chime" | "browser"; play?: () => Promise<boolean> };
 export type AlertDelivery = { sound: AlertSound; checkedAt: number };
 export class AlertCancelled extends Error {}
 
-export function alertId(name: string, startsAt: number, advance: boolean): string {
-  return `${startsAt}:${name}:${advance ? "advance" : "active"}`;
+export function getAdvanceMinutes(value: unknown): number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 12 ? value : 5;
+}
+
+export function alertId(name: string, startsAt: number, advance: boolean, advanceMinutes?: number): string {
+  const minutes = getAdvanceMinutes(advanceMinutes);
+  // Preserve existing five-minute receipts; other timings are separate reminders.
+  const phase = !advance ? "active" : minutes === 5 ? "advance" : `advance:${minutes}`;
+  return `${startsAt}:${name}:${phase}`;
 }
 
 export function dueZoneAlerts(now: number, preferences: AlertPreferences): ZoneAlert[] {
   if (!preferences.enabled) return [];
+  const advanceMinutes = getAdvanceMinutes(preferences.advanceMinutes);
   const current = zoneAt(now);
   const zones = [{ ...current, advance: false }];
-  if (preferences.advanceEnabled && now >= current.endsAt - 5 * 60000) zones.push({ ...zoneAt(current.endsAt), advance: true });
+  if (preferences.advanceEnabled && now >= current.endsAt - advanceMinutes * 60000) zones.push({ ...zoneAt(current.endsAt), advance: true });
   return zones.filter(zone => preferences.selected.includes(zone.name)).map(zone => ({
-    id: alertId(zone.name, zone.startsAt, zone.advance),
+    id: alertId(zone.name, zone.startsAt, zone.advance, advanceMinutes),
     name: zone.name,
     startsAt: zone.startsAt,
     advance: zone.advance,
-    dueAt: zone.startsAt - (zone.advance ? 5 * 60000 : 0),
+    advanceMinutes: zone.advance ? advanceMinutes : 0,
+    dueAt: zone.startsAt - (zone.advance ? advanceMinutes * 60000 : 0),
     expiresAt: zone.advance ? zone.startsAt : zone.startsAt + ZONE_INTERVAL,
   }));
 }
@@ -42,7 +51,7 @@ export function createZoneAlertEngine(options: EngineOptions) {
   const inFlight = new Set<string>();
   const accepted = new Set<string>();
   const retries = new Map<string, number>();
-  const eligible = (event: ZoneAlert) => dueZoneAlerts(options.now(), options.preferences()).some(item => item.id === event.id);
+  const eligible = (event: ZoneAlert) => dueZoneAlerts(options.now(), options.preferences()).some(item => item.id === event.id && item.dueAt === event.dueAt);
   const known = (id: string) => {
     if (accepted.has(id)) return true;
     try { return options.receipts.has(id); } catch { return false; }

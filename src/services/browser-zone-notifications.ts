@@ -39,7 +39,7 @@ export function createBrowserNotificationSender(isCurrent: (event: ZoneAlert) =>
     return registrationPromise;
   }
 
-  return async (event: ZoneAlert, sound: { silent: boolean; renotify: boolean }) => {
+  const send = async (event: ZoneAlert, sound: { silent: boolean; renotify: boolean }) => {
     const remaining = Math.max(1, Math.ceil((event.startsAt - Date.now()) / 60000));
     const options: NotificationOptions & { renotify: boolean } = {
       body: event.advance ? `${event.name} becomes corrupted in ${remaining} minute${remaining === 1 ? "" : "s"}.` : `${event.name} is now corrupted.`,
@@ -47,6 +47,24 @@ export function createBrowserNotificationSender(isCurrent: (event: ZoneAlert) =>
       ...sound,
       data: { id: event.id, url: new URL(`${import.meta.env.BASE_URL}#corrupted-zones`, window.location.origin).href },
     };
+    if (!isCurrent(event)) throw new AlertNoLongerDue();
+    // Desktop trackers such as pd2.tools create the notification directly.
+    // Do not put worker registration/activation in front of a desktop alert.
+    let native: Notification | null = null;
+    try {
+      // eslint-disable-next-line compat/compat -- Optional API; callers check support and permission.
+      native = new Notification("PD2 Corrupted Zone", options);
+    } catch { /* Mobile browsers may require showNotification on a worker. */ }
+    if (native) {
+      const notification = native;
+      await new Promise<void>((resolve, reject) => {
+        const timeout = window.setTimeout(() => { notification.close(); reject(new Error("Browser did not confirm notification display")); }, 5000);
+        notification.onshow = () => { window.clearTimeout(timeout); resolve(); };
+        notification.onerror = () => { window.clearTimeout(timeout); reject(new Error("Browser rejected notification display")); };
+        notification.onclick = () => { window.focus(); window.location.hash = "corrupted-zones"; notification.close(); };
+      });
+      return;
+    }
     if ("serviceWorker" in navigator) {
       let registration: ServiceWorkerRegistration | null = null;
       try { registration = await prepareWorker(); } catch { /* Desktop constructor fallback below. */ }
@@ -66,14 +84,9 @@ export function createBrowserNotificationSender(isCurrent: (event: ZoneAlert) =>
         }
       }
     }
-    if (!isCurrent(event)) throw new AlertNoLongerDue();
-    await new Promise<void>((resolve, reject) => {
-      // eslint-disable-next-line compat/compat -- Optional constructor fallback; callers check support and permission.
-      const notification = new Notification("PD2 Corrupted Zone", options);
-      const timeout = window.setTimeout(() => { notification.close(); reject(new Error("Browser did not confirm notification display")); }, 5000);
-      notification.onshow = () => { window.clearTimeout(timeout); resolve(); };
-      notification.onerror = () => { window.clearTimeout(timeout); reject(new Error("Browser rejected notification display")); };
-      notification.onclick = () => { window.focus(); window.location.hash = "corrupted-zones"; notification.close(); };
-    });
+    throw new Error("No supported notification delivery method is available");
   };
+  return Object.assign(send, {
+    prepare: () => "serviceWorker" in navigator ? prepareWorker().then(() => undefined).catch(() => undefined) : Promise.resolve(),
+  });
 }

@@ -26,44 +26,43 @@
       </section>
       <section class="border border-[#51452e] rounded bg-[#17130e] p-4" aria-labelledby="alerts-title">
         <h2 id="alerts-title" class="text-[#e9bf40] font-bold mb-2">Your zone alerts</h2>
-        <p class="text-sm text-[#b4ac92] mb-3">Choose zones below, then enable browser notifications. Alerts appear when a selected zone becomes active, including the current zone if selected.</p>
-        <p class="text-sm text-[#b4ac92] mb-4">Keep this site open in a tab. Alerts also work while browsing runewords; closing the site stops alerts. Sleeping devices and suspended tabs can delay them.</p>
-        <p v-if="!state.supported" class="text-sm text-[#e4b67c] mb-3">Browser notifications are unavailable here. Open the HTTPS site in a browser that supports notifications.</p>
+        <p class="text-sm text-[#b4ac92] mb-4">Choose zones below. Keep this tab open for alerts.</p>
+        <p v-if="!state.supported" class="text-sm text-[#e4b67c] mb-3">Notifications aren’t available in this browser.</p>
         <div class="flex flex-wrap gap-3 items-center mb-3">
           <button v-if="state.enabled" type="button" class="rwf-btn min-h-[44px]" @click="pauseAlerts">Pause notifications</button>
-          <button v-if="!state.enabled || state.permissionBlocked" type="button" class="rwf-btn min-h-[44px]" :disabled="!state.supported || !state.selected.length || state.busy" @click="enableAlerts">{{ state.busy ? 'Enabling…' : 'Enable notifications' }}</button>
+          <button v-if="!state.enabled || state.permissionBlocked" type="button" class="rwf-btn min-h-[44px]" :disabled="!state.supported || state.busy" @click="enableAlerts">{{ state.busy ? 'Enabling…' : 'Enable notifications' }}</button>
           <span class="text-sm text-[#b4ac92]">{{ state.selected.length }} selected · {{ state.enabled ? (state.permissionBlocked ? 'Permission needed' : 'Alerts on') : 'Alerts off' }}</span>
         </div>
-        <p v-if="state.message" role="status" class="text-sm text-[#e4b67c] mb-3">{{ state.message }}</p>
-        <p v-if="state.lastNotification" class="text-xs text-[#b4ac92] mb-3">Last alert sent to browser: {{ state.lastNotification }}</p>
+        <p v-if="state.notificationIssue" role="status" class="text-sm text-[#e4b67c] mb-3">{{ state.notificationIssue }}</p>
+        <p v-if="state.enabled && !state.permissionBlocked && nextReminder" class="text-sm text-[#b4ac92] mb-3">Next selected zone: <span class="text-[#a0c6ff]">{{ nextReminder.name }}</span> at {{ localTime(nextReminder.startsAt) }}.</p>
         <div class="rw-ZoneAlertOptions">
-          <label><input type="checkbox" :checked="state.advanceEnabled" @change="changeAdvance" /><span>Also alert me 5 minutes before a selected zone starts</span></label>
-          <div class="text-sm text-[#b4ac92] border-l-2 border-[#8a8062] pl-3 leading-relaxed" aria-label="Reminder schedule status">
-            <p v-if="!state.enabled" class="mb-0">Reminders paused — enable notifications above.</p>
-            <p v-else-if="state.permissionBlocked" class="mb-0">Reminders blocked — allow browser notifications above.</p>
-            <p v-else-if="!state.advanceEnabled" class="mb-0">Five-minute reminders are off.</p>
-            <p v-else-if="!nextReminder" class="mb-0">Select a zone to schedule a reminder.</p>
-            <template v-else>
-              <p class="mb-1">Next selected zone: <span class="text-[#a0c6ff]">{{ nextReminder.name }}</span> at {{ localTime(nextReminder.startsAt) }}.</p>
-              <p class="mb-0">Reminder: {{ reminderScheduleStatus }}.</p>
-            </template>
-            <p class="text-xs mb-0 mt-2">Last scheduler check: {{ new Date(state.now).toLocaleTimeString() }}. A minimized or sleeping tab may delay or miss reminders. Dependable background delivery requires server-sent push notifications.</p>
-            <p v-if="state.schedulerMessage" role="status" class="text-[#e4b67c] mt-2 mb-0">{{ state.schedulerMessage }}</p>
+          <label><input type="checkbox" :checked="state.advanceEnabled" @change="changeAdvance" /><span>Early alerts</span></label>
+          <div v-if="state.advanceEnabled" class="flex flex-wrap items-center gap-3">
+            <label for="early-alert-minutes" class="text-sm text-[#b4ac92]">Notify me</label>
+            <select id="early-alert-minutes" class="rw-ZoneSelect" style="width: auto" :value="state.advanceMinutes" @change="changeAdvanceMinutes">
+              <option v-for="minutes in 12" :key="minutes" :value="minutes">{{ minutes }} {{ minutes === 1 ? 'minute' : 'minutes' }}</option>
+            </select>
+            <span class="text-sm text-[#b4ac92]">before the zone starts</span>
           </div>
-          <label><input type="checkbox" :checked="state.soundEnabled" @change="changeSound" /><span>Play a sound with alerts</span></label>
-          <div class="flex flex-wrap items-center gap-3">
-            <button type="button" class="rwf-btn min-h-[44px]" @click="testAlertSound">Test sound</button>
-            <span class="text-xs text-[#b4ac92]">{{ state.soundEnabled ? (state.soundReady ? 'Site chime ready' : 'Browser sound enabled') : 'Alert sound off' }}</span>
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <label class="mb-0"><input type="checkbox" :checked="state.soundEnabled" @change="changeSound" /><span>Play a sound</span></label>
+            <button v-if="state.soundEnabled" type="button" class="rwf-btn min-h-[44px]" @click="testAlertSound">Test sound</button>
           </div>
-          <p v-if="state.soundMessage" role="status" class="text-xs text-[#b4ac92] mb-0">{{ state.soundMessage }}</p>
-          <p class="text-xs text-[#b4ac92] mb-0">Visible tabs use the site chime after notification delivery. Background alerts request your browser’s notification sound. Device volume, browser settings, and Do Not Disturb can silence it. Test sound activates the site chime after a refresh.</p>
         </div>
         <details class="mb-5 text-sm">
-          <summary class="rw-Header-link cursor-pointer min-h-[44px] flex items-center">Recent real alerts</summary>
+          <summary class="rw-Header-link cursor-pointer min-h-[44px] flex items-center">Alert details</summary>
+          <p v-if="state.enabled && state.advanceEnabled && nextReminder" class="text-xs text-[#b4ac92]" aria-label="Reminder schedule status">Early reminder: {{ reminderScheduleStatus }}.</p>
+          <p v-if="state.lastNotification" class="text-xs text-[#b4ac92]">Last alert: {{ state.lastNotification }}</p>
+          <p class="text-xs text-[#b4ac92]">Last check: {{ new Date(state.now).toLocaleTimeString() }}. Sleeping devices or frozen tabs may delay alerts.</p>
+          <p v-if="state.schedulerMessage" class="text-xs text-[#e4b67c]">{{ state.schedulerMessage }}</p>
+          <p v-if="state.soundMessage" class="text-xs text-[#b4ac92]">{{ state.soundMessage }}</p>
+          <p class="text-xs text-[#b4ac92]">If the site chime is blocked, alerts use your browser’s notification sound.</p>
+          <h3 class="text-[#b4ac92] font-bold">Recent alerts</h3>
           <p v-if="!state.history.length" class="text-[#b4ac92]">No alerts recorded yet.</p>
           <ul class="text-[#b4ac92] leading-relaxed">
-            <li v-for="entry in state.history" :key="`${entry.startsAt}-${entry.name}-${entry.advance}`" class="py-2 border-b border-[#382e20]">
-              {{ entry.name }} · {{ entry.advance ? '5-minute reminder' : 'zone start' }} · {{ entry.status === 'sent' ? 'sent to browser' : entry.status === 'missed' ? 'missed while page checks were paused' : 'delivery failed' }} · {{ localTime(entry.checkedAt) }}<span v-if="entry.status === 'sent' && entry.sound"> · {{ entry.sound === 'chime' ? 'site chime started' : entry.sound === 'browser' ? 'browser sound requested' : entry.sound === 'off' ? 'sound off' : 'sound unavailable' }}</span>
+            <li v-for="entry in state.history" :key="`${entry.startsAt}-${entry.name}-${entry.advance}-${entry.advance ? getAdvanceMinutes(entry.advanceMinutes) : 0}`" class="py-2 border-b border-[#382e20]">
+              {{ entry.name }} · {{ entry.advance ? `${getAdvanceMinutes(entry.advanceMinutes)}-minute reminder` : 'zone start' }} · {{ entry.status === 'sent' ? 'sent to browser' : entry.status === 'missed' ? 'missed while page checks were paused' : 'delivery failed' }} · {{ localTime(entry.checkedAt) }}<span v-if="entry.status === 'sent' && entry.sound"> · {{ entry.sound === 'chime' ? 'site chime started' : entry.sound === 'browser' ? 'browser sound requested' : entry.sound === 'off' ? 'sound off' : 'sound unavailable' }}</span>
+              <span v-if="entry.visibility" class="block text-xs">{{ entry.visibility === 'hidden' ? 'Tab was hidden' : 'Tab was visible' }} · {{ Math.round((entry.delayMs || 0) / 1000) }}s after due time</span>
             </li>
           </ul>
         </details>
@@ -97,7 +96,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { corruptedZones, nextOccurrence, upcomingZones, zoneAt } from "@/data/corrupted-zones";
-import { zoneState, zoneCountdown, selectAlertZone, clearAlertZones, enableAlerts, pauseAlerts, setAlertSound, testAlertSound, setAdvanceAlert, loadZoneSettings, reminderWasSent } from "@/store/corrupted-zones";
+import { zoneState, zoneCountdown, selectAlertZone, clearAlertZones, enableAlerts, pauseAlerts, setAlertSound, testAlertSound, setAdvanceAlert, setAdvanceMinutes, loadZoneSettings, reminderWasSent } from "@/store/corrupted-zones";
+import { getAdvanceMinutes } from "@/services/zone-alert-engine";
 
 type Zone = ReturnType<typeof zoneAt>;
 const popularZones = ["Cow Level", "Arcane Sanctuary", "Tamoe Highland and the Pit", "Chaos Sanctuary"];
@@ -112,9 +112,9 @@ export default defineComponent({
     },
     reminderScheduleStatus(): string {
       if (!this.nextReminder) return "no zone selected";
-      if (reminderWasSent(this.nextReminder.name, this.nextReminder.startsAt)) return "already sent to browser for this appearance";
-      const dueAt = this.nextReminder.startsAt - 5 * 60000;
-      return dueAt <= this.state.now ? "due now" : `armed for ${this.localTime(dueAt)}`;
+      if (reminderWasSent(this.nextReminder.name, this.nextReminder.startsAt, this.state.advanceMinutes)) return "sent";
+      const dueAt = this.nextReminder.startsAt - this.state.advanceMinutes * 60000;
+      return dueAt <= this.state.now ? "due now" : `at ${this.localTime(dueAt)}`;
     },
     filteredZones(): string[] { return this.sortedZones.filter(zone => zone.toLowerCase().includes(this.search.trim().toLowerCase())); },
     zoneGroups(): { title: string; zones: string[] }[] {
@@ -131,9 +131,11 @@ export default defineComponent({
     enableAlerts,
     pauseAlerts,
     reminderWasSent,
+    getAdvanceMinutes,
     testAlertSound,
     changeSound(event: Event) { void setAlertSound((event.target as HTMLInputElement).checked); },
     changeAdvance(event: Event) { setAdvanceAlert((event.target as HTMLInputElement).checked); },
+    changeAdvanceMinutes(event: Event) { setAdvanceMinutes(Number((event.target as HTMLSelectElement).value)); },
     localTime(timestamp: number): string {
       const date = new Date(timestamp);
       const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });

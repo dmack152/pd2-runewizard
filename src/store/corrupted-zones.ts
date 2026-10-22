@@ -1,12 +1,13 @@
-import { reactive } from "vue";
+import { reactive, watch } from "vue";
 import { corruptedZones, zoneAt, ZONE_INTERVAL } from "@/data/corrupted-zones";
-import { alertId, createZoneAlertEngine, dueZoneAlerts, type AlertDelivery, type SoundPlan } from "@/services/zone-alert-engine";
+import { alertId, createZoneAlertEngine, dueZoneAlerts, getAdvanceMinutes, type AlertDelivery, type SoundPlan } from "@/services/zone-alert-engine";
 import { createBrowserNotificationSender } from "@/services/browser-zone-notifications";
+import { createZoneAlarmSchedule } from "@/services/zone-alert-scheduler";
 
 const settingsKey = "runewizard-zone-alerts";
 const deliveredKey = "runewizard-zone-alert-delivered";
 const historyKey = "runewizard-zone-alert-history";
-type AlertRecord = { name: string; startsAt: number; advance: boolean; status: "sent" | "missed" | "failed"; checkedAt: number; sound?: AlertDelivery["sound"] };
+type AlertRecord = { name: string; startsAt: number; advance: boolean; advanceMinutes?: number; status: "sent" | "missed" | "failed"; checkedAt: number; sound?: AlertDelivery["sound"]; visibility?: DocumentVisibilityState; delayMs?: number };
 const createZoneState = () => reactive({
   now: Date.now(),
   selected: [] as string[],
@@ -14,11 +15,13 @@ const createZoneState = () => reactive({
   permissionBlocked: false,
   busy: false,
   message: "",
+  notificationIssue: "",
   notice: null as { name: string; startsAt: number; advance: boolean; expiresAt?: number } | null,
   soundEnabled: false,
   soundReady: false,
   soundMessage: "",
   advanceEnabled: false,
+  advanceMinutes: 5,
   lastNotification: "",
   history: [] as AlertRecord[],
   schedulerMessage: "",
@@ -32,7 +35,7 @@ let audio: AudioContext | null = (import.meta.hot ? import.meta.hot.data.audio :
 let stopClock: (() => void) | null = null;
 
 function save() {
-  try { localStorage.setItem(settingsKey, JSON.stringify({ selected: zoneState.selected, enabled: zoneState.enabled, soundEnabled: zoneState.soundEnabled, advanceEnabled: zoneState.advanceEnabled })); } catch { /* Optional persistence. */ }
+  try { localStorage.setItem(settingsKey, JSON.stringify({ selected: zoneState.selected, enabled: zoneState.enabled, soundEnabled: zoneState.soundEnabled, advanceEnabled: zoneState.advanceEnabled, advanceMinutes: zoneState.advanceMinutes })); } catch { /* Optional persistence. */ }
 }
 
 function notificationPermission(): NotificationPermission {
@@ -42,13 +45,16 @@ function notificationPermission(): NotificationPermission {
 }
 
 function recordAlert(zone: AlertZone, status: AlertRecord["status"], sound?: AlertDelivery["sound"]) {
-  const entry = { ...zone, status, checkedAt: Date.now(), sound };
-  zoneState.history = [entry, ...(zoneState.history || []).filter(item => !(item.name === entry.name && item.startsAt === entry.startsAt && item.advance === entry.advance))].slice(0, 10);
+  const checkedAt = Date.now();
+  const advanceMinutes = zone.advance ? getAdvanceMinutes(zone.advanceMinutes ?? zoneState.advanceMinutes) : 0;
+  const dueAt = zone.dueAt ?? zone.startsAt - advanceMinutes * 60000;
+  const entry = { ...zone, advanceMinutes, status, checkedAt, sound, visibility: document.visibilityState, delayMs: Math.max(0, checkedAt - dueAt) };
+  zoneState.history = [entry, ...(zoneState.history || []).filter(item => !(item.name === entry.name && item.startsAt === entry.startsAt && item.advance === entry.advance && (!entry.advance || getAdvanceMinutes(item.advanceMinutes) === entry.advanceMinutes)))].slice(0, 10);
   try { localStorage.setItem(historyKey, JSON.stringify(zoneState.history)); } catch { /* Diagnostics are optional. */ }
 }
 
-export function reminderWasSent(name: string, startsAt: number): boolean {
-  const key = alertId(name, startsAt, true);
+export function reminderWasSent(name: string, startsAt: number, minutes = zoneState.advanceMinutes): boolean {
+  const key = alertId(name, startsAt, true, minutes);
   if (delivered.has(key)) return true;
   try { return !!JSON.parse(localStorage.getItem(deliveredKey) || "{}")[key]; } catch { return false; }
 }
@@ -125,11 +131,23 @@ export async function testAlertSound() {
 export async function setAlertSound(enabled: boolean) {
   zoneState.soundEnabled = enabled;
   save();
-  if (enabled) await testAlertSound();
+  if (enabled) {
+    // Start permission and audio activation in the checkbox's user gesture.
+    const enabling = ensureAlertsEnabled();
+    await testAlertSound();
+    await enabling;
+  }
 }
 
 export function setAdvanceAlert(enabled: boolean) {
   zoneState.advanceEnabled = enabled;
+  save();
+  if (enabled) void ensureAlertsEnabled();
+  else void checkAlert();
+}
+
+export function setAdvanceMinutes(minutes: number) {
+  zoneState.advanceMinutes = getAdvanceMinutes(minutes);
   save();
   void checkAlert();
 }
@@ -137,7 +155,8 @@ export function setAdvanceAlert(enabled: boolean) {
 export function selectAlertZone(name: string, checked: boolean) {
   zoneState.selected = checked ? [...new Set([...zoneState.selected, name])] : zoneState.selected.filter(zone => zone !== name);
   save();
-  void checkAlert();
+  if (checked) void ensureAlertsEnabled();
+  else void checkAlert();
 }
 
 export function clearAlertZones() {
@@ -148,34 +167,44 @@ export function clearAlertZones() {
 export function pauseAlerts() {
   zoneState.enabled = false;
   zoneState.message = "Notifications paused.";
+  zoneState.notificationIssue = "";
   save();
 }
 
 export async function enableAlerts() {
-  if (!zoneState.supported || zoneState.busy || !zoneState.selected.length) return;
+  if (!zoneState.supported || zoneState.busy) return;
   zoneState.busy = true;
+  zoneState.notificationIssue = "";
   try {
     if (zoneState.soundEnabled) void unlockSound();
-    // Optional API: feature-detected above and requested only after a visitor clicks Enable.
+    // Request only from a visitor's explicit checkbox/button gesture.
+    const currentPermission = notificationPermission();
     // eslint-disable-next-line compat/compat
-    const permission = await Notification.requestPermission();
+    const permission = currentPermission === "default" ? await Notification.requestPermission() : currentPermission;
     if (permission !== "granted") {
       zoneState.enabled = false;
       zoneState.message = permission === "denied" ? "Notifications are blocked. Allow them in your browser’s site settings, then try again." : "Permission was not granted. You can enable notifications when you’re ready.";
+      zoneState.notificationIssue = permission === "denied" ? "Notifications are blocked. Allow them in your browser’s site settings." : "Allow notifications to turn on alerts.";
     } else {
       zoneState.enabled = true;
       zoneState.message = "Notifications enabled for your selected zones.";
+      void sendZoneNotification.prepare();
     }
     save();
     await checkAlert();
   } catch {
     zoneState.enabled = false;
     zoneState.message = "This browser could not enable notifications. Try opening the site in Chrome, Edge, or Firefox.";
+    zoneState.notificationIssue = "Could not enable notifications. Try again in your browser.";
     save();
   } finally { zoneState.busy = false; }
 }
 
-type AlertZone = { name: string; startsAt: number; advance: boolean };
+function ensureAlertsEnabled() {
+  return zoneState.enabled && notificationPermission() === "granted" ? checkAlert() : enableAlerts();
+}
+
+type AlertZone = { name: string; startsAt: number; advance: boolean; advanceMinutes?: number; dueAt?: number };
 
 export function dismissZoneNotice() {
   zoneState.notice = null;
@@ -199,22 +228,17 @@ async function sharedDeliveryLock(action: () => Promise<void>) {
 
 async function prepareAlertSound(enabled: boolean): Promise<SoundPlan> {
   if (!enabled) return { mode: "off" };
-  if (document.visibilityState !== "visible") {
-    zoneState.soundMessage = "Background alerts request your browser’s notification sound. Chrome and device sound settings control its volume.";
-    return { mode: "browser" };
-  }
+  // Try an activated chime in background tabs too. Resuming audio happens only
+  // after notification acceptance so blocked audio cannot hold up the popup.
   if (audio && audio.state !== "closed") {
-    try {
-      if (audio.state !== "running") await resumeAudio(audio);
-      if (audio.state === "running") return { mode: "chime", play: playChime };
-    } catch { /* Browser notification sound is the fallback. */ }
+    return { mode: "chime", play: playChime };
   }
   zoneState.soundReady = false;
   zoneState.soundMessage = "Browser notification sound requested because the site chime is not ready. Test sound activates the chime in this tab.";
   return { mode: "browser" };
 }
 
-const sendZoneNotification = createBrowserNotificationSender(event => zoneState.enabled && notificationPermission() === "granted" && dueZoneAlerts(Date.now(), zoneState).some(item => item.id === event.id));
+const sendZoneNotification = createBrowserNotificationSender(event => zoneState.enabled && notificationPermission() === "granted" && dueZoneAlerts(Date.now(), zoneState).some(item => item.id === event.id && item.dueAt === event.dueAt));
 const alertEngine = createZoneAlertEngine({
   now: () => Date.now(),
   preferences: () => zoneState,
@@ -236,18 +260,23 @@ const alertEngine = createZoneAlertEngine({
     recordAlert(event, "sent", delivery.sound);
     zoneState.lastNotification = `${event.name} (${event.advance ? "advance reminder" : "active now"}) · ${new Date(delivery.checkedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
     zoneState.message = "Notification sent. Your alerts remain enabled.";
+    zoneState.notificationIssue = "";
   },
   failed(event) {
     recordAlert(event, "failed");
     zoneState.message = "Notification delivery failed. Alerts remain enabled and retry in one minute while this alert is still relevant. No chime plays for a failed delivery.";
+    zoneState.notificationIssue = "Could not send the last alert. Retrying shortly.";
   },
 });
 
 async function checkAlert() {
+  const wasBlocked = zoneState.permissionBlocked;
   zoneState.permissionBlocked = zoneState.supported && notificationPermission() !== "granted";
+  if (wasBlocked && !zoneState.permissionBlocked) zoneState.notificationIssue = "";
   if (!zoneState.enabled || !zoneState.supported) return;
   if (zoneState.permissionBlocked) {
     zoneState.message = "Browser notification permission is blocked. Your saved alert setting is still on; allow notifications in site settings or click Enable notifications.";
+    zoneState.notificationIssue = "Allow notifications in your browser’s site settings to receive alerts.";
     return;
   }
   await alertEngine.check();
@@ -260,6 +289,7 @@ export function loadZoneSettings() {
     zoneState.selected = Array.isArray(saved.selected) ? corruptedZones.filter(zone => saved.selected.includes(zone)) : [];
     zoneState.soundEnabled = saved.soundEnabled === true;
     zoneState.advanceEnabled = saved.advanceEnabled === true;
+    zoneState.advanceMinutes = getAdvanceMinutes(saved.advanceMinutes);
     if (zoneState.soundEnabled && !zoneState.soundReady) zoneState.soundMessage = "Click Test sound to activate sound in this tab after opening or reloading the site.";
     zoneState.enabled = saved.enabled === true;
     zoneState.permissionBlocked = zoneState.supported && notificationPermission() !== "granted";
@@ -283,7 +313,7 @@ function startZoneClock() {
         const start = zoneAt(Math.max(previousCheck, zoneState.now - 24 * 60 * 60000)).endsAt;
         for (let time = start; time <= zoneState.now; time += ZONE_INTERVAL) {
           const zone = zoneAt(time);
-          if (zone.startsAt - 5 * 60000 > previousCheck && zoneState.selected.includes(zone.name) && !reminderWasSent(zone.name, zone.startsAt)) {
+          if (zone.startsAt - zoneState.advanceMinutes * 60000 > previousCheck && zoneState.selected.includes(zone.name) && !reminderWasSent(zone.name, zone.startsAt)) {
             recordAlert({ ...zone, advance: true }, "missed");
           }
         }
@@ -293,11 +323,24 @@ function startZoneClock() {
     void checkAlert();
   };
   tick();
-  const timer = window.setInterval(tick, 1000);
-  document.addEventListener("visibilitychange", tick);
-  document.addEventListener("resume", tick);
-  window.addEventListener("focus", tick);
-  window.addEventListener("pageshow", tick);
+  const alarms = createZoneAlarmSchedule({
+    now: () => Date.now(), preferences: () => zoneState, wake: tick,
+    setTimeout: (callback, delay) => window.setTimeout(callback, delay),
+    clearTimeout: id => window.clearTimeout(id),
+  });
+  alarms.arm();
+  // The display clock is not the alarm clock. Avoid rebuilding the schedule UI
+  // every second in a hidden tab; deadlines above deliver independently.
+  const timer = window.setInterval(() => {
+    if (document.visibilityState === "visible" || Date.now() - zoneState.now >= 60000) tick();
+  }, 1000);
+  const wake = () => { tick(); alarms.arm(); };
+  const stopWatching = watch(() => [zoneState.enabled, zoneState.advanceEnabled, zoneState.advanceMinutes, zoneState.selected.join("|")], () => alarms.arm(), { flush: "sync" });
+  if (zoneState.enabled && notificationPermission() === "granted") void sendZoneNotification.prepare();
+  document.addEventListener("visibilitychange", wake);
+  document.addEventListener("resume", wake);
+  window.addEventListener("focus", wake);
+  window.addEventListener("pageshow", wake);
   const syncSettings = (event: StorageEvent) => {
     if (event.key === settingsKey || event.key === null) { loadZoneSettings(); tick(); }
   };
@@ -308,10 +351,12 @@ function startZoneClock() {
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", openFromNotification);
   stopClock = () => {
     window.clearInterval(timer);
-    document.removeEventListener("visibilitychange", tick);
-    document.removeEventListener("resume", tick);
-    window.removeEventListener("focus", tick);
-    window.removeEventListener("pageshow", tick);
+    alarms.stop();
+    stopWatching();
+    document.removeEventListener("visibilitychange", wake);
+    document.removeEventListener("resume", wake);
+    window.removeEventListener("focus", wake);
+    window.removeEventListener("pageshow", wake);
     window.removeEventListener("storage", syncSettings);
     if ("serviceWorker" in navigator) navigator.serviceWorker.removeEventListener("message", openFromNotification);
     stopClock = null;

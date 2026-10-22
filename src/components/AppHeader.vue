@@ -29,9 +29,15 @@
 
           <div class="rw-Header-actions">
             <a href="#corrupted-zones" class="rw-ZoneBanner" aria-label="Corrupted zones: view schedule and notification settings">
-              <span class="rw-ZoneBanner-summary">
-                <span class="text-[#b4ac92]">Corrupted:</span>
-                <span class="text-[#d5b0f3]">{{ activeZone.name }} <span class="rw-ZoneBanner-clock text-[#b4ac92]">({{ minutesLeft }}m)</span></span>
+              <span class="rw-ZoneBanner-zones">
+                <span class="rw-ZoneBanner-summary">
+                  <span class="text-[#b4ac92]">Corrupted:</span>
+                  <span class="text-[#d5b0f3]">{{ activeZone.name }} <span class="rw-ZoneBanner-clock text-[#b4ac92]">({{ minutesLeft }}m)</span></span>
+                </span>
+                <span class="rw-ZoneBanner-summary">
+                  <span class="text-[#b4ac92]">Next zone:</span>
+                  <span class="text-[#a0c6ff]">{{ nextZone.name }}</span>
+                </span>
               </span>
               <span class="rw-ZoneBanner-action text-[#e9bf40]">Schedule &amp; alerts →</span>
             </a>
@@ -140,6 +146,7 @@ export default defineComponent({
   },
   computed: {
     activeZone(): ReturnType<typeof zoneAt> { return zoneAt(zoneState.now); },
+    nextZone(): ReturnType<typeof zoneAt> { return zoneAt(this.activeZone.endsAt); },
     minutesLeft(): number { return Math.max(1, Math.ceil((this.activeZone.endsAt - zoneState.now) / 60000)); },
   },
 

@@ -9,11 +9,15 @@ const compiled = esbuild.buildSync({
   define: { 'import.meta.env.BASE_URL': '"/pd2-runewizard/"' },
 }).outputFiles[0].text;
 const event = { id: '123:Cow Level:advance', name: 'Cow Level', startsAt: Date.now() + 300000, advance: true };
-function harness(worker) {
+function harness(worker, { nativeAvailable = !worker, nativeEvent = 'show' } = {}) {
   const calls = [], timers = new Map();
   let sequence = 0, current = true;
   class Notification {
-    constructor(title, options) { calls.push({ title, options, native: true }); queueMicrotask(() => this.onshow?.()); }
+    constructor(title, options) {
+      if (!nativeAvailable) throw new TypeError('Use a service worker');
+      calls.push({ title, options, native: true });
+      queueMicrotask(() => { if (nativeEvent === 'show') this.onshow?.(); else if (nativeEvent === 'error') this.onerror?.(); });
+    }
     close() {}
   }
   const module = { exports: {} };
@@ -24,7 +28,7 @@ function harness(worker) {
   };
   vm.runInNewContext(compiled, context);
   const sender = module.exports.createBrowserNotificationSender(() => current);
-  return { send: (options = { silent: false, renotify: true }) => sender(event, options), calls, timers, cancel: () => current = false };
+  return { send: (options = { silent: false, renotify: true }) => sender(event, options), prepare: sender.prepare, calls, timers, cancel: () => current = false };
 }
 const activeWorker = extra => ({ active: { state: 'activated' }, ...extra });
 test('worker notifications carry the stable ID, sound preference, and tracker route', async () => {
@@ -47,12 +51,35 @@ test('worker rejection without acceptance evidence fails for retry, without a ra
   await assert.rejects(h.send(), /rejected/);
   assert.equal(h.calls.length, 0);
 });
-test('desktop constructor fallback waits for onshow and preserves sound settings', async () => {
+test('desktop notification waits for onshow and preserves sound settings', async () => {
   const h = harness();
   await h.send();
   assert.equal(h.calls.length, 1);
   assert.equal(h.calls[0].options.silent, false);
   assert.equal(h.timers.size, 0);
+});
+
+test('desktop sends immediately even when a worker is unavailable', async () => {
+  const h = harness({}, { nativeAvailable: true });
+  await h.send();
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.timers.size, 0);
+});
+
+test('browser display rejection propagates instead of being recorded as accepted', async () => {
+  const h = harness(null, { nativeEvent: 'error' });
+  await assert.rejects(h.send(), /rejected notification/);
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.timers.size, 0);
+});
+
+test('worker can be prepared before a mobile alert is due', async () => {
+  let sent = 0;
+  const h = harness(activeWorker({ showNotification: async () => sent++ }));
+  await h.prepare();
+  assert.equal(sent, 0);
+  await h.send();
+  assert.equal(sent, 1);
 });
 test('cancelling during registration prevents notification delivery', async () => {
   const h = harness(activeWorker({ showNotification: async () => { throw Error('must not send'); } }));

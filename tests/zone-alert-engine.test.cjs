@@ -9,7 +9,7 @@ const loaded = new Module(entry, module);
 loaded.filename = entry;
 loaded.paths = module.paths;
 loaded._compile(compiled, entry);
-const { createZoneAlertEngine, dueZoneAlerts, AlertCancelled } = loaded.exports;
+const { createZoneAlertEngine, dueZoneAlerts, getAdvanceMinutes, AlertCancelled } = loaded.exports;
 const base = Date.parse('2026-10-22T18:40:00Z'); // Cow Level begins at 18:45 UTC.
 const deferred = () => { let resolve; const promise = new Promise(r => resolve = r); return { promise, resolve }; };
 
@@ -182,4 +182,77 @@ test('UI callback failure cannot replay an accepted alert', async () => {
   await h.engine.check();
   await h.engine.check();
   assert.equal(h.log.filter(e => e.event).length, 1);
+});
+
+test('every early-alert choice from one to twelve fires at its own boundary', async () => {
+  for (let minutes = 1; minutes <= 12; minutes++) {
+    const h = harness();
+    h.prefs.advanceMinutes = minutes;
+    const startsAt = base + 5 * 60000;
+    const dueAt = startsAt - minutes * 60000;
+    h.time = dueAt - 1;
+    assert.equal(dueZoneAlerts(h.time, h.prefs).length, 0);
+    h.time = dueAt;
+    await h.engine.check();
+    const event = h.log.find(item => item.event).event;
+    assert.equal(event.advanceMinutes, minutes);
+    assert.equal(event.dueAt, dueAt);
+  }
+});
+
+test('missing or invalid saved early-alert values retain the five-minute default', () => {
+  for (const value of [undefined, null, '12', 0, 13, 1.5, NaN]) assert.equal(getAdvanceMinutes(value), 5);
+});
+
+test('each changed early timing can send another reminder for the same appearance', async () => {
+  const h = harness();
+  await h.engine.check();
+  h.prefs.advanceMinutes = 12;
+  await h.engine.check();
+  await h.engine.check();
+  assert.equal(h.log.filter(e => e.event).length, 2);
+  h.prefs.advanceMinutes = 1;
+  await h.engine.check();
+  assert.equal(h.log.filter(e => e.event).length, 2);
+  h.time += 4 * 60000;
+  await h.engine.check();
+  await h.engine.check();
+  const events = h.log.filter(e => e.event).map(e => e.event);
+  assert.deepEqual(events.map(e => e.advanceMinutes), [5, 12, 1]);
+  assert.equal(new Set(events.map(e => e.id)).size, 3);
+  assert.equal(h.log.filter(e => e === 'chime').length, 3);
+});
+
+test('refresh and selecting an already-delivered timing do not duplicate that reminder', async () => {
+  const h = harness();
+  await h.engine.check();
+  h.prefs.advanceMinutes = 12;
+  await h.engine.check();
+  await createZoneAlertEngine(h.ports).check();
+  h.prefs.advanceMinutes = 5;
+  await h.engine.check();
+  assert.equal(h.log.filter(e => e.event).length, 2);
+});
+
+test('changing early timing never duplicates the active-zone alert', async () => {
+  const h = harness();
+  h.time += 5 * 60000;
+  await h.engine.check();
+  h.prefs.advanceMinutes = 12;
+  await h.engine.check();
+  assert.equal(h.log.filter(e => e.event).length, 1);
+  assert.equal(h.log.find(e => e.event).event.advance, false);
+});
+
+test('changing early timing during preparation cancels the old deadline', async () => {
+  const gate = deferred();
+  const h = harness({ sound: async () => { await gate.promise; return { mode: 'browser' }; } });
+  const pending = h.engine.check();
+  await new Promise(setImmediate);
+  h.prefs.advanceMinutes = 12;
+  gate.resolve();
+  await pending;
+  assert.equal(h.log.filter(e => e.event).length, 0);
+  await h.engine.check();
+  assert.equal(h.log.find(e => e.event).event.advanceMinutes, 12);
 });
