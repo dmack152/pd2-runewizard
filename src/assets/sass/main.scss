@@ -166,6 +166,153 @@ object {
   }
 }
 
+.rw-ZoneCurrent {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.rw-ZoneNotice {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 1000;
+  max-width: 720px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 0 auto;
+  padding: 12px 16px;
+  border: 1px solid #e9bf40;
+  border-radius: 4px;
+  background: #241c12;
+  line-height: 1.5;
+}
+.rw-ZoneBanner {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  min-height: 36px;
+  padding: 4px 0 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  &:hover .rw-ZoneBanner-action { color: #ffe59b; }
+  &:focus-visible { outline: 2px solid #e9bf40; outline-offset: -2px; }
+}
+.rw-ZoneBanner-summary { display: flex; flex-wrap: wrap; gap: 4px 8px; min-width: 0; }
+.rw-ZoneBanner-action { flex-shrink: 0; text-decoration: underline; text-underline-offset: 3px; }
+.rw-Header-icon a:focus-visible,
+.rw-Header-logo a:focus-visible { outline: 2px solid #e9bf40; outline-offset: 4px; }
+.rw-SiteHeader .rw-Header-content {
+  max-width: 1938px;
+  padding-right: 24px;
+  height: auto;
+  min-height: 106px;
+  padding-bottom: 16px;
+}
+.rw-Header-brand { min-width: 0; }
+.rw-SiteHeader .rw-Header-version { align-self: flex-start; }
+.rw-Header-actions {
+  margin-top: -40px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 520px;
+}
+.rw-SiteHeader .rw-Header-nav { flex-wrap: wrap; justify-content: flex-end; gap: 6px 24px; padding: 0; }
+.rw-SiteHeader .rw-Header-nav > * { margin-right: 0; }
+@media (min-width: 1600px) {
+  .rw-SiteHeader .rw-Header-meta {
+    display: grid;
+    // Main column + gap, less the header's left padding and rune icon.
+    grid-template-columns: calc(1250px + 24px - 32px - 89px) minmax(0, 1fr);
+  }
+  .rw-Header-actions {
+    width: 100%;
+    max-width: 640px;
+    flex-shrink: 0;
+  }
+}
+@media (min-width: 768px) and (max-width: 1023px) {
+  .rw-SiteHeader .rw-Header-content { height: auto; min-height: 140px; padding-bottom: 12px; }
+  .rw-SiteHeader .rw-Header-meta { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .rw-Header-actions { margin-top: 0; width: 100%; max-width: none; }
+}
+.rw-ZoneBanner-clock { font-variant-numeric: tabular-nums; }
+.rw-ZonePage {
+  max-width: 1250px;
+  padding: 16px 24px 48px;
+  margin: 0 auto;
+  line-height: 1.5;
+  button:disabled { opacity: 0.5; cursor: default; }
+}
+.rw-ZonePage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+.rw-ZoneChoices { max-height: 600px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #8a8062 #17130e; padding-right: 12px; }
+.rw-ZoneChoice {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 44px;
+  padding: 12px 0;
+  border-bottom: 1px solid #382e20;
+  cursor: pointer;
+  input { width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px; accent-color: #e9bf40; }
+}
+@media (max-width: 767px) {
+  .rw-ZoneBanner { flex-wrap: wrap; gap: 6px; padding: 8px 0; }
+  .rw-ZoneBanner-summary { flex-basis: 100%; }
+  .rw-ZoneBanner-action { font-size: 12px; }
+  .rw-Header-actions { margin-top: 8px; max-width: none; gap: 0; }
+  .rw-ZonePage { padding: 16px 16px 32px; }
+  .rw-ZonePage-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .rw-ZonePage-grid > section:nth-child(2) { grid-row: 1; }
+}
+.rw-ZoneClock {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.rw-ZoneAlertOptions {
+  display: grid;
+  gap: 12px;
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-top: 1px solid #382e20;
+  border-bottom: 1px solid #382e20;
+  label { display: flex; align-items: flex-start; gap: 10px; min-height: 32px; color: #b4ac92; cursor: pointer; }
+  input { width: 18px; height: 18px; flex-shrink: 0; margin-top: 3px; accent-color: #e9bf40; }
+}
+.rw-ZoneSelect {
+  width: 100%;
+  min-height: 44px;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #8a8062;
+  border-radius: 4px;
+  background: #17130e;
+  color: #a0c6ff;
+  font-size: 16px;
+}
+.rw-ZoneSchedule li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #382e20;
+}
+
 .rw-FarmingTypes {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -771,6 +918,7 @@ html:has(.rw-ChangelogDialog[open]) {
   }
   .rw-SiteHeader .rw-Header-nav {
     flex-wrap: wrap;
+    justify-content: flex-start;
     gap: 0 16px;
     margin-top: 4px;
     font-size: 13px;

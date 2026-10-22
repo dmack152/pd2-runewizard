@@ -3,19 +3,23 @@
   <header class="rw-SiteHeader">
     <div class="rw-Header-content rw-Layout-rowContainer h-[106px] flex">
       <div class="rw-Header-icon pr-[20px] pt-[17px]">
+        <a href="#" class="block" aria-label="Runewizard home — rune icon">
         <img
           src="@assets/images/ber-rune.webp"
           alt="Ber rune, original art (c) BLIZZARD ENTERTAINMENT"
           class="w-[69px] h-[67px] object-contain"
         />
+        </a>
       </div>
       <div class="rw-Header-brand flex-1">
         <h1 class="rw-Header-logo text-black text-[0px] mt-[19px] mb-[5px] w-[301px] h-[32px]">
+          <a href="#" class="block w-full h-full" aria-label="Runewizard home">
           <img
             src="@assets/images/logo-text-runewizard.png"
             alt="PD2 Runewizard"
             class="block w-full h-full"
           />
+          </a>
         </h1>
         <div class="rw-Header-meta flex justify-between items-center">
           <div class="rw-Header-version text-lg text-[#e9bf40]">
@@ -23,7 +27,15 @@
             <span class="ml-2 text-[#90b7ff]">{{ envGameVersion }}</span>
           </div>
 
-          <div class="rw-Header-nav flex items-center text-[#514f4a]">
+          <div class="rw-Header-actions">
+            <a href="#corrupted-zones" class="rw-ZoneBanner" aria-label="Corrupted zones: view schedule and notification settings">
+              <span class="rw-ZoneBanner-summary">
+                <span class="text-[#b4ac92]">Corrupted:</span>
+                <span class="text-[#d5b0f3]">{{ activeZone.name }} <span class="rw-ZoneBanner-clock text-[#b4ac92]">({{ minutesLeft }}m)</span></span>
+              </span>
+              <span class="rw-ZoneBanner-action text-[#e9bf40]">Schedule &amp; alerts →</span>
+            </a>
+            <div class="rw-Header-nav flex items-center text-[#514f4a]">
             <button
               type="button"
               class="rw-HelpLink mr-6 whitespace-nowrap"
@@ -58,6 +70,7 @@
               <span>Wiki</span>
             </a>
             <a href="#cheat-sheet" class="rw-HelpLink rw-CheatSheetJump">Cheat Sheet</a>
+            </div>
           </div>
         </div>
       </div>
@@ -97,6 +110,8 @@ import { defineComponent } from "vue";
 import HelpBox from "@/components/HelpBox.vue";
 import SeasonChangelog from "@/components/SeasonChangelog.vue";
 import IconChevronDown from "@/icons/IconChevronDown.vue";
+import { zoneAt } from "@/data/corrupted-zones";
+import { zoneState } from "@/store/corrupted-zones";
 
 type TChangelogDialog = HTMLDialogElement & {
   showModal(): void;
@@ -122,6 +137,10 @@ export default defineComponent({
       envGithubRepoUrl: /**@type {string}*/ (import.meta.env
         .VITE_URL_GITHUB_REPO),
     };
+  },
+  computed: {
+    activeZone(): ReturnType<typeof zoneAt> { return zoneAt(zoneState.now); },
+    minutesLeft(): number { return Math.max(1, Math.ceil((this.activeZone.endsAt - zoneState.now) / 60000)); },
   },
 
   methods: {
