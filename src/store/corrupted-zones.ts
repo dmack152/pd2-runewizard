@@ -25,10 +25,10 @@ const createZoneState = () => reactive({
   supported: typeof Notification !== "undefined" && "requestPermission" in Notification && "permission" in Notification && window.isSecureContext,
 });
 // Keep the shared state attached to existing components during local hot updates.
-export const zoneState: ReturnType<typeof createZoneState> = import.meta.hot?.data.zoneState || createZoneState();
+export const zoneState: ReturnType<typeof createZoneState> = (import.meta.hot ? import.meta.hot.data.zoneState : null) || createZoneState();
 
-const delivered: Set<string> = import.meta.hot?.data.delivered || new Set<string>();
-let audio: AudioContext | null = import.meta.hot?.data.audio || null;
+const delivered: Set<string> = (import.meta.hot ? import.meta.hot.data.delivered : null) || new Set<string>();
+let audio: AudioContext | null = (import.meta.hot ? import.meta.hot.data.audio : null) || null;
 let stopClock: (() => void) | null = null;
 
 function save() {
