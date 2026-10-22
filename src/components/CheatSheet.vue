@@ -31,7 +31,7 @@
         <h3 class="text-[#e9bf40] font-bold mb-0">Power Leveling</h3>
       </div>
       <a :href="powerLeveling" target="_blank" rel="noopener" aria-label="Open power leveling chart full size" class="block p-4 pt-0 cursor-zoom-in">
-        <img :src="powerLeveling" alt="Power leveling reference chart with level ranges and suggested leveling areas" class="block w-full max-w-[416px] h-auto mx-auto [image-rendering:pixelated]" />
+        <img :src="powerLeveling" alt="Power leveling reference chart with level ranges, suggested leveling areas, and Normal, Nightmare, or Hell difficulty" class="block w-full h-auto" />
       </a>
     </section>
 
